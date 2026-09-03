@@ -19,11 +19,11 @@ import {
 // fixtures
 // ---------------------------------------------------------------------------
 
-/** 2026-09-07(周一)–09-09(周三),共 3 天 */
+/** 2026-09-07 (Monday) – 09-09 (Wednesday), 3 days */
 const TRIP: Trip = {
   id: 'trip-1',
   slug: 'OSK-4K2',
-  destination: '大阪',
+  destination: 'Osaka',
   city_key: 'osaka',
   start_date: '2026-09-07',
   end_date: '2026-09-09',
@@ -50,7 +50,7 @@ function makePlace(over: Partial<Place> = {}): Place {
   return {
     id: 'p1',
     city_key: 'osaka',
-    name: '大阪城',
+    name: 'Osaka Castle',
     category: 'sight',
     district: 'chuo',
     lat: null,
@@ -70,7 +70,7 @@ function makeBlock(over: Partial<Block> = {}): Block {
     day: 1,
     start_time: '10:00',
     duration_min: 60,
-    title: '大阪城',
+    title: 'Osaka Castle',
     subtitle: null,
     place_id: 'p1',
     cost_per_person: 0,
@@ -79,7 +79,7 @@ function makeBlock(over: Partial<Block> = {}): Block {
   };
 }
 
-/** 以 TRIP 为底,只覆盖关心的字段 */
+/** Built from TRIP, overriding only the fields a test cares about */
 function constraintsWith(over: Partial<Constraints> = {}): Constraints {
   return { ...buildConstraints(TRIP, []), ...over };
 }
@@ -97,7 +97,7 @@ function ids(blocks: readonly Block[]): string[] {
 // ---------------------------------------------------------------------------
 
 describe('buildConstraints — budget_ceiling', () => {
-  it('取所有人的最低值,不是平均值', () => {
+  it('takes the lowest member ceiling, not the average', () => {
     const c = buildConstraints(TRIP, [
       makePref({ budget_band: 'low' }),
       makePref({ budget_band: 'mid' }),
@@ -106,13 +106,13 @@ describe('buildConstraints — budget_ceiling', () => {
 
     expect(c.budget_ceiling).toBe(BAND_CEILING.low);
 
-    // 显式钉死「不是平均值」这条 —— spec §7 特意点名的规则
+    // Pin down "not the average" explicitly — spec §7 calls this rule out by name
     const average = (BAND_CEILING.low + BAND_CEILING.mid + BAND_CEILING.high) / 3;
     expect(c.budget_ceiling).not.toBe(average);
     expect(c.budget_ceiling).toBeLessThan(average);
   });
 
-  it('成员顺序不影响结果', () => {
+  it('does not depend on member order', () => {
     const low = makePref({ budget_band: 'low' });
     const high = makePref({ budget_band: 'high' });
     expect(buildConstraints(TRIP, [low, high]).budget_ceiling).toBe(
@@ -120,26 +120,26 @@ describe('buildConstraints — budget_ceiling', () => {
     );
   });
 
-  it('band 为空或非法的成员按 mid 算', () => {
+  it('counts a missing or invalid band as mid', () => {
     expect(buildConstraints(TRIP, [makePref({ budget_band: null })]).budget_ceiling).toBe(
       BAND_CEILING.mid,
     );
     expect(
       buildConstraints(TRIP, [makePref({ budget_band: 'luxury' as never })]).budget_ceiling,
     ).toBe(BAND_CEILING.mid);
-    // 但仍然参与取最低
+    // and it still takes part in the minimum
     expect(
       buildConstraints(TRIP, [makePref({ budget_band: null }), makePref({ budget_band: 'low' })])
         .budget_ceiling,
     ).toBe(BAND_CEILING.low);
   });
 
-  it('一条 preference 都没有时回落到 trip.budget_per_person', () => {
+  it('falls back to trip.budget_per_person when there are no preferences at all', () => {
     expect(buildConstraints(TRIP, []).budget_ceiling).toBe(TRIP.budget_per_person);
     expect(buildConstraints(TRIP).budget_ceiling).toBe(TRIP.budget_per_person);
   });
 
-  it('band → 金额的映射可以覆盖', () => {
+  it('lets the band → amount mapping be overridden', () => {
     const c = buildConstraints(TRIP, [makePref({ budget_band: 'low' })], {
       bandCeiling: { low: 300, mid: 600, high: 900 },
     });
@@ -148,7 +148,7 @@ describe('buildConstraints — budget_ceiling', () => {
 });
 
 describe('buildConstraints — blocks_per_day', () => {
-  it('多数人的 pace 决定块数:chill 3 / balanced 4 / packed 5', () => {
+  it('follows the majority pace: chill 3 / balanced 4 / packed 5', () => {
     const chill = buildConstraints(TRIP, [
       makePref({ pace: 'chill' }),
       makePref({ pace: 'chill' }),
@@ -174,13 +174,13 @@ describe('buildConstraints — blocks_per_day', () => {
     expect(packed.blocks_per_day).toBe(5);
   });
 
-  it('平票一律回落 balanced:chill×1 packed×1', () => {
+  it('falls back to balanced on a tie: chill x1 vs packed x1', () => {
     const c = buildConstraints(TRIP, [makePref({ pace: 'chill' }), makePref({ pace: 'packed' })]);
     expect(c.pace).toBe('balanced');
     expect(c.blocks_per_day).toBe(4);
   });
 
-  it('平票一律回落 balanced:balanced×2 packed×2', () => {
+  it('falls back to balanced on a tie: balanced x2 vs packed x2', () => {
     const c = buildConstraints(TRIP, [
       makePref({ pace: 'balanced' }),
       makePref({ pace: 'balanced' }),
@@ -191,7 +191,7 @@ describe('buildConstraints — blocks_per_day', () => {
     expect(c.blocks_per_day).toBe(4);
   });
 
-  it('平票双方都不是 balanced 时也回落 balanced:chill×2 packed×2', () => {
+  it('falls back to balanced even when neither tied side is balanced: chill x2 vs packed x2', () => {
     const c = buildConstraints(TRIP, [
       makePref({ pace: 'chill' }),
       makePref({ pace: 'chill' }),
@@ -202,7 +202,7 @@ describe('buildConstraints — blocks_per_day', () => {
     expect(c.blocks_per_day).toBe(4);
   });
 
-  it('三方平票也回落 balanced', () => {
+  it('falls back to balanced on a three-way tie', () => {
     const c = buildConstraints(TRIP, [
       makePref({ pace: 'chill' }),
       makePref({ pace: 'balanced' }),
@@ -211,12 +211,12 @@ describe('buildConstraints — blocks_per_day', () => {
     expect(c.pace).toBe('balanced');
   });
 
-  it('全员未填 pace → balanced', () => {
+  it('uses balanced when nobody stated a pace', () => {
     expect(buildConstraints(TRIP, [makePref(), makePref()]).pace).toBe('balanced');
     expect(buildConstraints(TRIP, []).pace).toBe('balanced');
   });
 
-  it('平票回落档位可以覆盖', () => {
+  it('lets the tie-break fallback be overridden', () => {
     const c = buildConstraints(TRIP, [makePref({ pace: 'chill' }), makePref({ pace: 'packed' })], {
       defaultPace: 'chill',
     });
@@ -225,8 +225,8 @@ describe('buildConstraints — blocks_per_day', () => {
   });
 });
 
-describe('buildConstraints — 标签并集', () => {
-  it('required_tags 是所有人 dietary 的并集,去空去重且大小写不敏感', () => {
+describe('buildConstraints — tag unions', () => {
+  it('required_tags is the union of everyone dietary, deduped case-insensitively', () => {
     const c = buildConstraints(TRIP, [
       makePref({ dietary: ['halal', 'vegetarian'] }),
       makePref({ dietary: ['Halal', '  ', 'no pork'] }),
@@ -235,31 +235,36 @@ describe('buildConstraints — 标签并集', () => {
     expect(c.required_tags).toEqual(['halal', 'vegetarian', 'no pork']);
   });
 
-  it('forced 是所有人 must_do 的集合,按分隔符拆开', () => {
+  it('forced collects every must_do, split on separators', () => {
     const c = buildConstraints(TRIP, [
-      makePref({ must_do: '环球影城、道顿堀' }),
-      makePref({ must_do: 'teamLab, 环球影城' }),
+      makePref({ must_do: 'Universal Studios, Dotonbori' }),
+      makePref({ must_do: 'teamLab; Universal Studios' }),
       makePref({ must_do: '   ' }),
     ]);
-    expect(c.forced).toEqual(['环球影城', '道顿堀', 'teamLab']);
+    expect(c.forced).toEqual(['Universal Studios', 'Dotonbori', 'teamLab']);
   });
 
-  it('excluded 是所有人 no_go 的并集', () => {
+  it('excluded is the union of everyone no_go', () => {
     const c = buildConstraints(TRIP, [
-      makePref({ no_go: '夜店;赌场' }),
-      makePref({ no_go: '夜店\n海鲜' }),
+      makePref({ no_go: 'nightclub; casino' }),
+      makePref({ no_go: 'nightclub\nseafood' }),
     ]);
-    expect(c.excluded).toEqual(['夜店', '赌场', '海鲜']);
+    expect(c.excluded).toEqual(['nightclub', 'casino', 'seafood']);
   });
 
-  it('拆分器可以覆盖', () => {
+  it('splits full-width separators too (members may type in any locale)', () => {
+    const c = buildConstraints(TRIP, [makePref({ no_go: 'casino，nightclub、seafood' })]);
+    expect(c.excluded).toEqual(['casino', 'nightclub', 'seafood']);
+  });
+
+  it('lets the splitter be overridden', () => {
     const c = buildConstraints(TRIP, [makePref({ no_go: 'a|b' })], {
       splitFreeText: (v) => v.split('|'),
     });
     expect(c.excluded).toEqual(['a', 'b']);
   });
 
-  it('没人填时三组都是空数组', () => {
+  it('returns empty arrays when nobody filled anything in', () => {
     const c = buildConstraints(TRIP, [makePref()]);
     expect(c.required_tags).toEqual([]);
     expect(c.forced).toEqual([]);
@@ -267,29 +272,29 @@ describe('buildConstraints — 标签并集', () => {
   });
 });
 
-describe('buildConstraints — 天数与透传', () => {
+describe('buildConstraints — trip length and passthrough', () => {
   it('days = end - start + 1', () => {
     expect(buildConstraints(TRIP, []).days).toBe(3);
   });
 
-  it('同一天出发返回 → 1 天', () => {
+  it('same-day trip is 1 day', () => {
     expect(
       buildConstraints({ ...TRIP, start_date: '2026-09-07', end_date: '2026-09-07' }, []).days,
     ).toBe(1);
   });
 
-  it('跨月照样算对', () => {
+  it('spans month boundaries correctly', () => {
     expect(
       buildConstraints({ ...TRIP, start_date: '2026-08-30', end_date: '2026-09-02' }, []).days,
     ).toBe(4);
   });
 
-  it('日期非法时兜底为 1 天,不抛异常', () => {
+  it('falls back to 1 day on invalid dates instead of throwing', () => {
     expect(buildConstraints({ ...TRIP, end_date: '2026-02-30' }, []).days).toBe(1);
     expect(buildConstraints({ ...TRIP, start_date: 'tomorrow' }, []).days).toBe(1);
   });
 
-  it('city_key 与 start_date 原样带出', () => {
+  it('passes city_key and start_date straight through', () => {
     const c = buildConstraints(TRIP, []);
     expect(c.city_key).toBe('osaka');
     expect(c.start_date).toBe('2026-09-07');
@@ -301,25 +306,25 @@ describe('buildConstraints — 天数与透传', () => {
 // ---------------------------------------------------------------------------
 
 describe('filterCandidates', () => {
-  it('剔除命中 excluded 的类别', () => {
-    const c = constraintsWith({ excluded: ['夜店'] });
+  it('drops places whose category matches excluded', () => {
+    const c = constraintsWith({ excluded: ['nightclub'] });
     const places = [
       makePlace({ id: 'keep', category: 'sight' }),
-      makePlace({ id: 'drop', category: '夜店' }),
+      makePlace({ id: 'drop', category: 'nightclub' }),
     ];
     expect(filterCandidates(places, c, 1).map((p) => p.id)).toEqual(['keep']);
   });
 
-  it('excluded 也比对名称', () => {
-    const c = constraintsWith({ excluded: ['海鲜'] });
+  it('matches excluded against the name as well', () => {
+    const c = constraintsWith({ excluded: ['seafood'] });
     const places = [
-      makePlace({ id: 'keep', name: '大阪城' }),
-      makePlace({ id: 'drop', name: '黑门海鲜市场' }),
+      makePlace({ id: 'keep', name: 'Osaka Castle' }),
+      makePlace({ id: 'drop', name: 'Kuromon Seafood Market' }),
     ];
     expect(filterCandidates(places, c, 1).map((p) => p.id)).toEqual(['keep']);
   });
 
-  it('默认不比对 district,加进 matchExcludedAgainst 才剔', () => {
+  it('ignores district by default, and honours it when asked', () => {
     const c = constraintsWith({ excluded: ['namba'] });
     const places = [makePlace({ id: 'x', district: 'namba' })];
 
@@ -329,27 +334,28 @@ describe('filterCandidates', () => {
     ).toEqual([]);
   });
 
-  it('单个 ASCII 字符的 no_go 不会误伤(写个 b 不该剔掉所有 bar)', () => {
+  it('ignores a single-ASCII-character no_go (a "b" must not drop every bar)', () => {
     const c = constraintsWith({ excluded: ['b'] });
     const places = [makePlace({ id: 'bar', category: 'bar' })];
     expect(filterCandidates(places, c, 1).map((p) => p.id)).toEqual(['bar']);
   });
 
-  it('单个 CJK 字的 no_go 仍然生效', () => {
+  it('still honours a single-glyph no_go from a non-ASCII script', () => {
+    // Prefetched Osaka POIs carry Japanese names, and one glyph there is a whole word
     const c = constraintsWith({ excluded: ['酒'] });
     const places = [makePlace({ id: 'drop', category: '居酒屋' }), makePlace({ id: 'keep' })];
     expect(filterCandidates(places, c, 1).map((p) => p.id)).toEqual(['keep']);
   });
 
-  it('剔除别的城市', () => {
+  it('drops places from other cities', () => {
     const c = constraintsWith();
     const places = [makePlace({ id: 'osk' }), makePlace({ id: 'kul', city_key: 'kualalumpur' })];
     expect(filterCandidates(places, c, 1).map((p) => p.id)).toEqual(['osk']);
   });
 
-  it('剔除当天不营业的:periods 里没写这个 weekday', () => {
+  it('drops places closed that day: the weekday is absent from periods', () => {
     const c = constraintsWith();
-    // day 1 = 2026-09-07 是周一(weekday 1),这家只写了周二
+    // Day 1 is 2026-09-07, a Monday (weekday 1); this place only lists Tuesday
     const closedOnMonday = makePlace({
       id: 'tue-only',
       opening_hours: { periods: { 2: [{ open: '09:00', close: '18:00' }] } },
@@ -358,7 +364,7 @@ describe('filterCandidates', () => {
     expect(filterCandidates([closedOnMonday], c, 2).map((p) => p.id)).toEqual(['tue-only']);
   });
 
-  it('剔除当天不营业的:该 weekday 是空数组', () => {
+  it('drops places closed that day: the weekday maps to an empty array', () => {
     const c = constraintsWith();
     const place = makePlace({
       id: 'x',
@@ -368,7 +374,7 @@ describe('filterCandidates', () => {
     expect(filterCandidates([place], c, 2).map((p) => p.id)).toEqual(['x']);
   });
 
-  it('exceptions 覆盖 periods(公休日)', () => {
+  it('lets exceptions override periods (one-off closure)', () => {
     const c = constraintsWith();
     const place = makePlace({
       id: 'x',
@@ -380,7 +386,7 @@ describe('filterCandidates', () => {
     expect(filterCandidates([place], c, 1)).toEqual([]);
   });
 
-  it('opening_hours 缺失时保留(容错:宁可留下,也不能把候选池洗空)', () => {
+  it('keeps places with missing opening_hours (never wash the candidate pool out)', () => {
     const c = constraintsWith();
     const unknown = makePlace({ id: 'unknown', opening_hours: null });
     const garbage = makePlace({
@@ -393,20 +399,20 @@ describe('filterCandidates', () => {
     ]);
   });
 
-  it('always_open 一律保留', () => {
+  it('always keeps an always_open place', () => {
     const c = constraintsWith();
     const place = makePlace({ id: 'x', opening_hours: { always_open: true, periods: { 2: [] } } });
     expect(filterCandidates([place], c, 1).map((p) => p.id)).toEqual(['x']);
   });
 
-  it('泛型不丢调用方自己的字段', () => {
+  it('preserves extra fields the caller carries on its own type', () => {
     const c = constraintsWith();
     const enriched = { ...makePlace(), similarity: 0.87 };
     const [first] = filterCandidates([enriched], c, 1);
     expect(first?.similarity).toBe(0.87);
   });
 
-  it('入参不是数组时返回空数组,不抛异常', () => {
+  it('returns an empty array instead of throwing when given a non-array', () => {
     const c = constraintsWith();
     expect(filterCandidates(null as unknown as Place[], c, 1)).toEqual([]);
   });
@@ -416,15 +422,15 @@ describe('filterCandidates', () => {
 // 3. validateItinerary
 // ---------------------------------------------------------------------------
 
-describe('validateItinerary — place_id 必须来自候选(防幻觉)', () => {
-  it('干净的行程没有任何违规', () => {
+describe('validateItinerary — place_id must come from the candidates', () => {
+  it('reports nothing for a clean itinerary', () => {
     const c = constraintsWith({ budget_ceiling: 500 });
     const places = [makePlace({ id: 'p1' })];
     const blocks = [makeBlock({ place_id: 'p1', cost_per_person: 100 })];
     expect(validateItinerary(blocks, c, places)).toEqual({ ok: true, violations: [] });
   });
 
-  it('LLM 发明的地点 → unknown_place', () => {
+  it('flags a place the LLM invented', () => {
     const c = constraintsWith();
     const result = validateItinerary([makeBlock({ place_id: 'hallucinated' })], c, ['p1']);
     expect(result.ok).toBe(false);
@@ -432,15 +438,15 @@ describe('validateItinerary — place_id 必须来自候选(防幻觉)', () => {
     expect(result.violations[0]?.detail).toMatchObject({ place_id: 'hallucinated' });
   });
 
-  it('没有 place_id → missing_place', () => {
+  it('flags a block with no place_id', () => {
     const c = constraintsWith();
     const result = validateItinerary([makeBlock({ place_id: null })], c, ['p1']);
     expect(codes(result.violations)).toEqual(['missing_place']);
   });
 });
 
-describe('validateItinerary — 预算', () => {
-  it('总花费刚好等于上限时通过', () => {
+describe('validateItinerary — budget', () => {
+  it('passes when the total lands exactly on the ceiling', () => {
     const c = constraintsWith({ budget_ceiling: 300 });
     const blocks = [
       makeBlock({ id: 'a', cost_per_person: 200 }),
@@ -449,7 +455,7 @@ describe('validateItinerary — 预算', () => {
     expect(validateItinerary(blocks, c, ['p1']).ok).toBe(true);
   });
 
-  it('超出上限 1 块钱就报 over_budget', () => {
+  it('flags a total one unit over the ceiling', () => {
     const c = constraintsWith({ budget_ceiling: 300 });
     const blocks = [
       makeBlock({ id: 'a', cost_per_person: 200 }),
@@ -460,7 +466,7 @@ describe('validateItinerary — 预算', () => {
     expect(result.violations[0]?.detail).toMatchObject({ total: 301, ceiling: 300, over: 1 });
   });
 
-  it('跨天累计,不是按天算', () => {
+  it('sums across the whole trip, not per day', () => {
     const c = constraintsWith({ budget_ceiling: 150 });
     const blocks = [
       makeBlock({ id: 'a', day: 1, cost_per_person: 100 }),
@@ -470,8 +476,8 @@ describe('validateItinerary — 预算', () => {
   });
 });
 
-describe('validateItinerary — 同一天时间不重叠', () => {
-  it('重叠会被抓出来', () => {
+describe('validateItinerary — no overlaps within a day', () => {
+  it('catches an overlap', () => {
     const c = constraintsWith();
     const blocks = [
       makeBlock({ id: 'a', start_time: '10:00', duration_min: 120 }),
@@ -482,7 +488,7 @@ describe('validateItinerary — 同一天时间不重叠', () => {
     expect(result.violations[0]).toMatchObject({ day: 1, detail: { with_block_id: 'b' } });
   });
 
-  it('首尾相接不算重叠', () => {
+  it('treats back-to-back blocks as fine', () => {
     const c = constraintsWith();
     const blocks = [
       makeBlock({ id: 'a', start_time: '10:00', duration_min: 60 }),
@@ -491,7 +497,7 @@ describe('validateItinerary — 同一天时间不重叠', () => {
     expect(validateItinerary(blocks, c, ['p1']).ok).toBe(true);
   });
 
-  it('不同天的同一时段不算重叠', () => {
+  it('does not treat the same slot on different days as an overlap', () => {
     const c = constraintsWith();
     const blocks = [
       makeBlock({ id: 'a', day: 1, start_time: '10:00' }),
@@ -500,7 +506,7 @@ describe('validateItinerary — 同一天时间不重叠', () => {
     expect(validateItinerary(blocks, c, ['p1']).ok).toBe(true);
   });
 
-  it('一个大块套住两个小块时,两对都报出来', () => {
+  it('reports both pairs when one long block swallows two short ones', () => {
     const c = constraintsWith();
     const blocks = [
       makeBlock({ id: 'big', start_time: '09:00', duration_min: 300 }),
@@ -512,20 +518,20 @@ describe('validateItinerary — 同一天时间不重叠', () => {
   });
 });
 
-describe('validateItinerary — 营业时间', () => {
+describe('validateItinerary — opening hours', () => {
   const openMonday9to18 = makePlace({
     id: 'p1',
-    name: '大阪城',
+    name: 'Osaka Castle',
     opening_hours: { periods: { 1: [{ open: '09:00', close: '18:00' }] } },
   });
 
-  it('整段落在营业时间内 → 通过', () => {
+  it('passes when the block sits entirely inside the opening hours', () => {
     const c = constraintsWith();
     const blocks = [makeBlock({ start_time: '10:00', duration_min: 120 })];
     expect(validateItinerary(blocks, c, [openMonday9to18]).ok).toBe(true);
   });
 
-  it('结束时间越界 → outside_opening_hours', () => {
+  it('flags a block that runs past closing time', () => {
     const c = constraintsWith();
     const blocks = [makeBlock({ start_time: '17:00', duration_min: 120 })];
     const result = validateItinerary(blocks, c, [openMonday9to18]);
@@ -533,7 +539,7 @@ describe('validateItinerary — 营业时间', () => {
     expect(result.violations[0]?.detail).toMatchObject({ block: '17:00-19:00' });
   });
 
-  it('开门前 → outside_opening_hours', () => {
+  it('flags a block scheduled before opening time', () => {
     const c = constraintsWith();
     const blocks = [makeBlock({ start_time: '08:00', duration_min: 30 })];
     expect(codes(validateItinerary(blocks, c, [openMonday9to18]).violations)).toEqual([
@@ -541,9 +547,9 @@ describe('validateItinerary — 营业时间', () => {
     ]);
   });
 
-  it('当天全天不营业 → closed_that_day', () => {
+  it('flags a place that is closed all day', () => {
     const c = constraintsWith();
-    // 只开周二,行程第 1 天是周一
+    // Open Tuesdays only, while day 1 of the trip is a Monday
     const tuesdayOnly = makePlace({
       id: 'p1',
       opening_hours: { periods: { 2: [{ open: '09:00', close: '18:00' }] } },
@@ -553,17 +559,19 @@ describe('validateItinerary — 营业时间', () => {
     ]);
   });
 
-  it('跨夜营业:18:00–02:00 的店,23:00 开始的块算合法', () => {
+  it('handles past-midnight hours: an 18:00–02:00 venue accepts a 23:00 block', () => {
     const c = constraintsWith();
     const bar = makePlace({
       id: 'p1',
       opening_hours: { periods: { 1: [{ open: '18:00', close: '02:00' }] } },
     });
-    expect(validateItinerary([makeBlock({ start_time: '23:00', duration_min: 90 })], c, [bar]).ok)
-      .toBe(true);
-    // 凌晨 00:30 的块也应归到这段跨夜营业里
-    expect(validateItinerary([makeBlock({ start_time: '00:30', duration_min: 60 })], c, [bar]).ok)
-      .toBe(true);
+    expect(
+      validateItinerary([makeBlock({ start_time: '23:00', duration_min: 90 })], c, [bar]).ok,
+    ).toBe(true);
+    // A 00:30 block belongs to that same past-midnight interval
+    expect(
+      validateItinerary([makeBlock({ start_time: '00:30', duration_min: 60 })], c, [bar]).ok,
+    ).toBe(true);
     expect(
       codes(
         validateItinerary([makeBlock({ start_time: '03:00', duration_min: 60 })], c, [bar])
@@ -572,70 +580,73 @@ describe('validateItinerary — 营业时间', () => {
     ).toEqual(['outside_opening_hours']);
   });
 
-  it('opening_hours 缺失时不报违规', () => {
+  it('reports nothing when opening_hours is missing', () => {
     const c = constraintsWith();
     const unknown = makePlace({ id: 'p1', opening_hours: null });
     expect(validateItinerary([makeBlock({ start_time: '03:00' })], c, [unknown]).ok).toBe(true);
   });
 
-  it('只传 id 列表时跳过营业时间检查,其余照跑', () => {
+  it('skips the opening-hours checks when given only ids, and runs the rest', () => {
     const c = constraintsWith();
     const blocks = [makeBlock({ start_time: '23:00', duration_min: 60 })];
 
-    // 传 Place[] 会报违规
+    // Passing Place[] surfaces the violation
     expect(codes(validateItinerary(blocks, c, [openMonday9to18]).violations)).toEqual([
       'outside_opening_hours',
     ]);
-    // 只传 id 就查不了营业时间,但 place_id 检查仍然生效
+    // Ids alone cannot answer the opening-hours question, but place_id is still checked
     expect(validateItinerary(blocks, c, ['p1']).ok).toBe(true);
     expect(codes(validateItinerary(blocks, c, ['other']).violations)).toEqual(['unknown_place']);
   });
 
-  it('Set 形式的 id 集合也认', () => {
+  it('accepts a Set of ids', () => {
     const c = constraintsWith();
     expect(validateItinerary([makeBlock()], c, new Set(['p1'])).ok).toBe(true);
   });
 });
 
-describe('validateItinerary — forced 必须出现', () => {
-  it('命中 block 标题', () => {
-    const c = constraintsWith({ forced: ['环球影城'] });
-    const blocks = [makeBlock({ title: '环球影城 一日游' })];
+describe('validateItinerary — forced items must appear', () => {
+  it('matches against the block title', () => {
+    const c = constraintsWith({ forced: ['Universal Studios'] });
+    const blocks = [makeBlock({ title: 'Universal Studios day trip' })];
     expect(validateItinerary(blocks, c, ['p1']).ok).toBe(true);
   });
 
-  it('命中 subtitle', () => {
+  it('matches against the subtitle', () => {
     const c = constraintsWith({ forced: ['teamLab'] });
-    const blocks = [makeBlock({ title: '数字艺术', subtitle: '在 teamLab 泡两小时' })];
+    const blocks = [makeBlock({ title: 'Digital art', subtitle: 'Two hours at teamLab' })];
     expect(validateItinerary(blocks, c, ['p1']).ok).toBe(true);
   });
 
-  it('命中候选地点的名称(传 Place[] 时)', () => {
-    const c = constraintsWith({ forced: ['道顿堀'] });
-    const place = makePlace({ id: 'p1', name: '道顿堀' });
-    expect(validateItinerary([makeBlock({ title: '晚餐' })], c, [place]).ok).toBe(true);
+  it('matches against the candidate place name when Place[] is supplied', () => {
+    const c = constraintsWith({ forced: ['Dotonbori'] });
+    const place = makePlace({ id: 'p1', name: 'Dotonbori' });
+    expect(validateItinerary([makeBlock({ title: 'Dinner' })], c, [place]).ok).toBe(true);
   });
 
-  it('大小写不敏感', () => {
+  it('matches case-insensitively', () => {
     const c = constraintsWith({ forced: ['TeamLab'] });
     expect(validateItinerary([makeBlock({ title: 'teamlab botanical' })], c, ['p1']).ok).toBe(true);
   });
 
-  it('缺失 → missing_forced,每条各报一次', () => {
-    const c = constraintsWith({ forced: ['环球影城', '道顿堀'] });
-    const result = validateItinerary([makeBlock({ title: '大阪城' })], c, ['p1']);
+  it('reports one violation per missing item', () => {
+    const c = constraintsWith({ forced: ['Universal Studios', 'Dotonbori'] });
+    const result = validateItinerary([makeBlock({ title: 'Osaka Castle' })], c, ['p1']);
     expect(codes(result.violations)).toEqual(['missing_forced', 'missing_forced']);
-    expect(result.violations.map((v) => v.detail?.['item'])).toEqual(['环球影城', '道顿堀']);
+    expect(result.violations.map((v) => v.detail?.['item'])).toEqual([
+      'Universal Studios',
+      'Dotonbori',
+    ]);
   });
 
-  it('行程为空时 forced 全部报缺失', () => {
-    const c = constraintsWith({ forced: ['环球影城'] });
+  it('reports every forced item when the itinerary is empty', () => {
+    const c = constraintsWith({ forced: ['Universal Studios'] });
     expect(codes(validateItinerary([], c, ['p1']).violations)).toEqual(['missing_forced']);
   });
 });
 
-describe('validateItinerary — 坏数据兜底', () => {
-  it('day 超出行程范围 → invalid_day', () => {
+describe('validateItinerary — bad data', () => {
+  it('flags a day outside the trip range', () => {
     const c = constraintsWith(); // days = 3
     expect(codes(validateItinerary([makeBlock({ day: 4 })], c, ['p1']).violations)).toEqual([
       'invalid_day',
@@ -645,10 +656,10 @@ describe('validateItinerary — 坏数据兜底', () => {
     ]);
   });
 
-  it('时间解析不了 → invalid_time,且不影响其他 block', () => {
+  it('flags an unreadable time without affecting the other blocks', () => {
     const c = constraintsWith();
     const blocks = [
-      makeBlock({ id: 'bad', start_time: '稍后' }),
+      makeBlock({ id: 'bad', start_time: 'later' }),
       makeBlock({ id: 'ok', start_time: '14:00' }),
     ];
     const result = validateItinerary(blocks, c, ['p1']);
@@ -656,14 +667,15 @@ describe('validateItinerary — 坏数据兜底', () => {
     expect(result.violations[0]?.block_id).toBe('bad');
   });
 
-  it('duration 为负 → invalid_time', () => {
+  it('flags a negative duration', () => {
     const c = constraintsWith();
-    expect(codes(validateItinerary([makeBlock({ duration_min: -30 })], c, ['p1']).violations))
-      .toEqual(['invalid_time']);
+    expect(
+      codes(validateItinerary([makeBlock({ duration_min: -30 })], c, ['p1']).violations),
+    ).toEqual(['invalid_time']);
   });
 
-  it('多条违规一次全返回,不短路', () => {
-    const c = constraintsWith({ budget_ceiling: 100, forced: ['环球影城'] });
+  it('returns every violation at once instead of stopping at the first', () => {
+    const c = constraintsWith({ budget_ceiling: 100, forced: ['Universal Studios'] });
     const blocks = [
       makeBlock({ id: 'a', start_time: '10:00', duration_min: 120, cost_per_person: 200 }),
       makeBlock({ id: 'b', start_time: '11:00', place_id: 'ghost', cost_per_person: 50 }),
@@ -675,7 +687,7 @@ describe('validateItinerary — 坏数据兜底', () => {
     );
   });
 
-  it('入参完全是垃圾也不抛异常', () => {
+  it('never throws, even on entirely malformed input', () => {
     const c = constraintsWith();
     expect(() =>
       validateItinerary(
@@ -693,7 +705,7 @@ describe('validateItinerary — 坏数据兜底', () => {
 // ---------------------------------------------------------------------------
 
 describe('enforceBudget', () => {
-  it('已经达标时原样返回', () => {
+  it('leaves an already-affordable itinerary alone', () => {
     const c = constraintsWith({ budget_ceiling: 300 });
     const blocks = [
       makeBlock({ id: 'a', cost_per_person: 100 }),
@@ -702,7 +714,7 @@ describe('enforceBudget', () => {
     expect(ids(enforceBudget(blocks, c))).toEqual(['a', 'b']);
   });
 
-  it('按 cost 从高到低砍,砍到达标就停', () => {
+  it('cuts most expensive first and stops once it fits', () => {
     const c = constraintsWith({ budget_ceiling: 100 });
     const blocks = [
       makeBlock({ id: 'a', cost_per_person: 50 }),
@@ -710,23 +722,23 @@ describe('enforceBudget', () => {
       makeBlock({ id: 'c', cost_per_person: 30 }),
     ];
     const kept = enforceBudget(blocks, c);
-    expect(ids(kept)).toEqual(['a', 'c']); // 砍掉最贵的 b,剩 80 ≤ 100,且保持原顺序
+    expect(ids(kept)).toEqual(['a', 'c']); // b (the priciest) goes, 80 <= 100, order preserved
     expect(totalCost(kept)).toBeLessThanOrEqual(100);
   });
 
-  it('砍到刚好等于上限就停手,不多砍一个', () => {
+  it('stops as soon as the total lands exactly on the ceiling', () => {
     const c = constraintsWith({ budget_ceiling: 100 });
     const blocks = [
       makeBlock({ id: 'a', cost_per_person: 60 }),
       makeBlock({ id: 'b', cost_per_person: 55 }),
       makeBlock({ id: 'c', cost_per_person: 45 }),
     ];
-    const kept = enforceBudget(blocks, c); // 160 - 60 = 100,正好卡线
+    const kept = enforceBudget(blocks, c); // 160 - 60 = 100, right on the line
     expect(ids(kept)).toEqual(['b', 'c']);
     expect(totalCost(kept)).toBe(100);
   });
 
-  it('locked 的永远不砍 —— 全员 locked 时一个都不动', () => {
+  it('never cuts a locked block — an all-locked day stays untouched', () => {
     const c = constraintsWith({ budget_ceiling: 10 });
     const blocks = [
       makeBlock({ id: 'a', cost_per_person: 500, locked: true }),
@@ -734,11 +746,11 @@ describe('enforceBudget', () => {
     ];
     const kept = enforceBudget(blocks, c);
     expect(ids(kept)).toEqual(['a', 'b']);
-    // 砍不动就是砍不动,超预算由 validateItinerary 报出来
+    // Nothing can be done here, so validateItinerary is left to report it
     expect(codes(validateItinerary(kept, c, ['p1']).violations)).toContain('over_budget');
   });
 
-  it('最贵的那个是 locked 时,改砍次贵的非 locked', () => {
+  it('cuts the second most expensive when the priciest block is locked', () => {
     const c = constraintsWith({ budget_ceiling: 100 });
     const blocks = [
       makeBlock({ id: 'locked', cost_per_person: 70, locked: true }),
@@ -748,7 +760,7 @@ describe('enforceBudget', () => {
     expect(ids(enforceBudget(blocks, c))).toEqual(['locked', 'c']);
   });
 
-  it('同价时砍 start_time 晚的,且结果确定', () => {
+  it('breaks cost ties on the later start_time, deterministically', () => {
     const c = constraintsWith({ budget_ceiling: 100 });
     const blocks = [
       makeBlock({ id: 'morning', start_time: '09:00', cost_per_person: 60 }),
@@ -758,7 +770,7 @@ describe('enforceBudget', () => {
     expect(ids(enforceBudget(blocks, c))).toEqual(ids(enforceBudget(blocks, c)));
   });
 
-  it('cost 为 0 的块砍了也不省钱,不动它', () => {
+  it('leaves zero-cost blocks alone since cutting them saves nothing', () => {
     const c = constraintsWith({ budget_ceiling: 50 });
     const blocks = [
       makeBlock({ id: 'locked', cost_per_person: 100, locked: true }),
@@ -767,19 +779,19 @@ describe('enforceBudget', () => {
     expect(ids(enforceBudget(blocks, c))).toEqual(['locked', 'free']);
   });
 
-  it('protectForced 打开时,must_do 的块最后才砍', () => {
-    const c = constraintsWith({ budget_ceiling: 100, forced: ['环球影城'] });
+  it('cuts must_do blocks last when protectForced is on', () => {
+    const c = constraintsWith({ budget_ceiling: 100, forced: ['Universal Studios'] });
     const blocks = [
-      makeBlock({ id: 'usj', title: '环球影城', cost_per_person: 90 }),
-      makeBlock({ id: 'aq', title: '海游馆', start_time: '15:00', cost_per_person: 80 }),
+      makeBlock({ id: 'usj', title: 'Universal Studios', cost_per_person: 90 }),
+      makeBlock({ id: 'aq', title: 'Osaka Aquarium', start_time: '15:00', cost_per_person: 80 }),
     ];
-    // 默认照 §7 字面:只看 cost,先砍最贵的 usj
+    // Default is literal §7: cost only, so the priciest (usj) goes first
     expect(ids(enforceBudget(blocks, c))).toEqual(['aq']);
-    // 打开保护后改砍 aq,must_do 留下
+    // With protection on, aq goes instead and the must_do survives
     expect(ids(enforceBudget(blocks, c, { protectForced: true }))).toEqual(['usj']);
   });
 
-  it('返回的是新数组,不改动入参', () => {
+  it('returns a new array and does not mutate the input', () => {
     const c = constraintsWith({ budget_ceiling: 100 });
     const blocks = [makeBlock({ id: 'a', cost_per_person: 200 })];
     const kept = enforceBudget(blocks, c);
@@ -788,14 +800,14 @@ describe('enforceBudget', () => {
     expect(kept).toEqual([]);
   });
 
-  it('泛型不丢调用方自己的字段', () => {
+  it('preserves extra fields the caller carries on its own type', () => {
     const c = constraintsWith({ budget_ceiling: 100 });
     const blocks = [{ ...makeBlock({ id: 'a', cost_per_person: 50 }), reason: { budget: 'ok' } }];
     const [first] = enforceBudget(blocks, c);
     expect(first?.reason).toEqual({ budget: 'ok' });
   });
 
-  it('入参是垃圾时不抛异常', () => {
+  it('never throws on malformed input', () => {
     const c = constraintsWith({ budget_ceiling: 100 });
     expect(() => enforceBudget(null as unknown as Block[], c)).not.toThrow();
     expect(enforceBudget([null, undefined] as unknown as Block[], c)).toEqual([]);
@@ -803,11 +815,11 @@ describe('enforceBudget', () => {
 });
 
 // ---------------------------------------------------------------------------
-// 串起来:§7 第 7 步的完整后置校验
+// End to end: the full post-generation check from §7 step 7
 // ---------------------------------------------------------------------------
 
-describe('enforceBudget → validateItinerary 串联', () => {
-  it('砍完预算后 over_budget 就不再出现', () => {
+describe('enforceBudget feeding validateItinerary', () => {
+  it('clears over_budget once the trimming has run', () => {
     const c = buildConstraints(TRIP, [
       makePref({ budget_band: 'low' }), // ceiling = 800
       makePref({ budget_band: 'high' }),

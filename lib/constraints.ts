@@ -1,21 +1,22 @@
 /**
- * lib/constraints.ts —— 规则引擎(technical-spec §7 的 L3 规则层)
+ * lib/constraints.ts — the rule engine (layer L3 of technical-spec §7).
  *
- * 纯函数模块:不碰网络、不碰 LLM、不碰 Supabase、不读系统时钟。
- * 所有日期由入参的 start_date + day 推导,因此结果与运行环境时区无关。
+ * Pure functions only: no network, no LLM, no Supabase, no system clock.
+ * Every date is derived from the caller's start_date + day, so results do not
+ * depend on the timezone the process happens to run in.
  *
- * 对应 §7 的三个步骤:
- *   第 2 步  buildConstraints    —— 把 trip + preferences 折叠成一份硬约束
- *   第 3 步  filterCandidates    —— 从 places 里筛出当天可用的候选
- *   第 7 步  validateItinerary   —— 后置硬校验(防 LLM 幻觉的核心)
- *            enforceBudget       —— 超预算时砍非 locked 的 block
+ * Covers three steps of §7:
+ *   step 2  buildConstraints    — fold trip + preferences into one hard constraint set
+ *   step 3  filterCandidates    — narrow the prefetched places down to one day's options
+ *   step 7  validateItinerary   — post-generation hard checks (the anti-hallucination core)
+ *           enforceBudget       — drop non-locked blocks until the budget fits
  *
- * 类型来源说明:lib/schemas.ts(Zod,Sep 5 冻结)定稿后,下面这些 input 类型
- * 应改为从那里 import type 再 re-export,本文件不再自带定义。
+ * Type sourcing: once lib/schemas.ts (Zod, frozen Sep 5) lands, the input types
+ * below should be imported from there and re-exported instead of redefined here.
  */
 
 // ---------------------------------------------------------------------------
-// 输入类型(对齐 §5 数据库 schema)
+// Input types (mirroring the §5 database schema)
 // ---------------------------------------------------------------------------
 
 export type Pace = 'chill' | 'balanced' | 'packed';
@@ -40,26 +41,26 @@ export interface Preference {
   pace: Pace | null;
   interests: string[] | null;
   dietary: string[] | null;
-  /** schema 里是 text 不是 text[],可能塞了多项,按分隔符拆 */
+  /** The schema stores text, not text[] — may hold several items, so it gets split */
   must_do: string | null;
   no_go: string | null;
 }
 
-/** 0 = 周日 … 6 = 周六 */
+/** 0 = Sunday … 6 = Saturday */
 export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface TimeRange {
   /** 'HH:MM' */
   open: string;
-  /** 'HH:MM';close <= open 视为跨夜(+24h),也接受 '25:30' 这种写法 */
+  /** 'HH:MM'; close <= open means it runs past midnight (+24h). '25:30' also works */
   close: string;
 }
 
-/** places.opening_hours(jsonb)的约定形状 */
+/** The shape this project assumes for places.opening_hours (jsonb) */
 export interface OpeningHours {
-  /** 该 weekday 键缺失或为空数组 = 当天不营业 */
+  /** A missing weekday key, or an empty array, means closed that day */
   periods?: Partial<Record<Weekday, TimeRange[]>>;
-  /** 'YYYY-MM-DD' → 覆盖 periods,用于公休日 */
+  /** 'YYYY-MM-DD' → overrides periods, for one-off closures */
   exceptions?: Record<string, TimeRange[]>;
   always_open?: boolean;
 }
@@ -72,7 +73,7 @@ export interface Place {
   district: string | null;
   lat: number | null;
   lng: number | null;
-  /** null 或结构不可解析 = 数据缺失 → 当作全天开放(见 §11 容错) */
+  /** null or unparsable = missing data → treated as open all day (see §11 fault tolerance) */
   opening_hours: OpeningHours | null;
   est_cost_per_person: number | null;
   avg_duration_min: number | null;
@@ -82,9 +83,9 @@ export interface Place {
 
 export interface Block {
   id: string;
-  /** 1-based:第几天 */
+  /** 1-based day index within the trip */
   day: number;
-  /** 'HH:MM' 或 'HH:MM:SS'(Postgres time 出来是后者) */
+  /** 'HH:MM' or 'HH:MM:SS' (Postgres time columns come back as the latter) */
   start_time: string;
   duration_min: number;
   title: string;
@@ -95,28 +96,28 @@ export interface Block {
 }
 
 // ---------------------------------------------------------------------------
-// 输出类型
+// Output types
 // ---------------------------------------------------------------------------
 
 export interface Constraints {
   city_key: string;
   /** 'YYYY-MM-DD' */
   start_date: string;
-  /** end_date - start_date + 1,最小为 1 */
+  /** end_date - start_date + 1, never below 1 */
   days: number;
-  /** 人均花费上限,取全员最低 */
+  /** Per-person spending ceiling — the lowest across all members */
   budget_ceiling: number;
   blocks_per_day: number;
-  /** 判定出的 pace,写进 block.reason 用 */
+  /** The resolved pace, useful when writing block.reason */
   pace: Pace;
-  /** 以下三组存去过空格的原文(保留大小写),比对时才内部归一化 */
+  /** These three keep the trimmed original text (case preserved); matching normalizes internally */
   required_tags: string[];
   forced: string[];
   excluded: string[];
 }
 
 export type ViolationCode =
-  /** place_id 不在候选列表 —— 防 LLM 发明地点,§7 第 7 步的头一条 */
+  /** place_id is not in the candidate list — stops the LLM inventing places, §7 step 7 */
   | 'unknown_place'
   | 'missing_place'
   | 'over_budget'
@@ -129,7 +130,7 @@ export type ViolationCode =
 
 export interface Violation {
   code: ViolationCode;
-  /** 人读的说明,可直接进 UI */
+  /** Human-readable, safe to surface in the UI as-is */
   message: string;
   block_id?: string;
   day?: number;
@@ -142,7 +143,7 @@ export interface ValidationResult {
 }
 
 // ---------------------------------------------------------------------------
-// 可调常量
+// Tunable constants
 // ---------------------------------------------------------------------------
 
 export const BLOCKS_PER_PACE: Readonly<Record<Pace, number>> = {
@@ -151,39 +152,39 @@ export const BLOCKS_PER_PACE: Readonly<Record<Pace, number>> = {
   packed: 5,
 };
 
-/** budget_band → 人均花费上限(绝对金额,单位同 trips.budget_per_person) */
+/** budget_band → per-person ceiling (absolute amount, same unit as trips.budget_per_person) */
 export const BAND_CEILING: Readonly<Record<BudgetBand, number>> = {
   low: 800,
   mid: 1500,
   high: 2500,
 };
 
-/** band 缺失时按哪一档算 */
+/** Which band a member with no stated band counts as */
 const FALLBACK_BAND: BudgetBand = 'mid';
 
-/** must_do / no_go 是自由文本,按常见分隔符拆成多项 */
+/** must_do / no_go are free text, so split them on the usual separators */
 const FREE_TEXT_SEPARATORS = /[,，、;；\n\r]+/;
 
 export interface BuildConstraintsOptions {
   bandCeiling?: Record<BudgetBand, number>;
   blocksPerPace?: Record<Pace, number>;
-  /** pace 平票或全员未填时用哪一档,默认 'balanced' */
+  /** Used when the pace vote ties or nobody stated one; defaults to 'balanced' */
   defaultPace?: Pace;
   splitFreeText?: (value: string) => string[];
 }
 
 export interface FilterOptions {
-  /** excluded 拿去比对 place 的哪些字段,默认 ['category', 'name'] */
+  /** Which place fields `excluded` is matched against; defaults to ['category', 'name'] */
   matchExcludedAgainst?: ReadonlyArray<'category' | 'name' | 'district'>;
 }
 
 export interface EnforceBudgetOptions {
-  /** true 时命中 forced 的 block 排到最后才砍,默认 false(照 §7 字面) */
+  /** When true, blocks matching `forced` are cut last; defaults to false (literal §7) */
   protectForced?: boolean;
 }
 
 // ---------------------------------------------------------------------------
-// 内部工具
+// Internal helpers
 // ---------------------------------------------------------------------------
 
 const PACES: readonly Pace[] = ['chill', 'balanced', 'packed'];
@@ -204,16 +205,17 @@ function isObject(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * 同样是判空对象,但【不做类型收窄】——用在已有静态类型、只是来源不可信的值上
- * (Supabase / LLM 出来的数组里可能混进 null),收窄成 Record 反而会丢掉原类型。
+ * Same non-null-object check, but deliberately NOT a type guard. Use it on values
+ * that already have a static type and are merely untrusted at runtime (a Supabase
+ * or LLM array can contain nulls) — narrowing those to Record would lose the type.
  */
 function isFilled(value: unknown): boolean {
   return typeof value === 'object' && value !== null;
 }
 
 /**
- * 把来源不可信的入参收成数组。注意不能在调用点直接写 Array.isArray(xs) ——
- * 对 readonly T[] 它会把类型收窄成 any[],下游全部退化成 any。
+ * Coerce an untrusted argument to an array. Do not inline Array.isArray at the call
+ * site: against a readonly T[] it narrows to any[], which degrades everything downstream.
  */
 function asArray<T>(value: readonly T[] | null | undefined): T[] {
   return Array.isArray(value) ? (value as T[]) : [];
@@ -223,20 +225,21 @@ function finiteOr(value: unknown, fallback: number): number {
   return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
 }
 
-/** 比对用的归一化:去首尾空格、小写、内部连续空白压成一个空格 */
+/** Normalization used for matching: trim, lowercase, collapse inner whitespace */
 function normalize(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
 /**
- * 太短的比对 token 会误伤(no_go 写个 'b' 会把所有 bar 全剔掉)。
- * ASCII 单字符一律忽略;CJK 单字(「酒」「鱼」)是有意义的,保留。
+ * Very short match tokens cause collateral damage (a no_go of 'b' would drop every bar).
+ * Single ASCII characters are ignored; a single non-ASCII character is meaningful in
+ * languages that write words as one glyph, so those are kept.
  */
 function isUsableToken(token: string): boolean {
   return token.length >= 2 || /[^\x00-\x7f]/.test(token);
 }
 
-/** 去空、去重(大小写不敏感),保留首次出现的原文 */
+/** Drop blanks and case-insensitive duplicates, keeping the first spelling seen */
 function dedupe(values: Iterable<string>): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
@@ -260,11 +263,11 @@ function toStringArray(value: unknown): string[] {
   return Array.isArray(value) ? value.filter((v): v is string => typeof v === 'string') : [];
 }
 
-// --- 时间 -----------------------------------------------------------------
+// --- Time ------------------------------------------------------------------
 
 const CLOCK_RE = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/;
 
-/** 'HH:MM' / 'HH:MM:SS' → 距零点的分钟数;允许 24–47 时表示跨夜。解析不了返回 null */
+/** 'HH:MM' / 'HH:MM:SS' → minutes past midnight; hours 24–47 express past-midnight. null if unparsable */
 function parseClock(value: unknown): number | null {
   if (typeof value !== 'string') return null;
   const m = CLOCK_RE.exec(value.trim());
@@ -281,7 +284,7 @@ function formatClock(totalMinutes: number): string {
   return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
 }
 
-// --- 日期(纯 UTC 运算,不受本地时区影响) --------------------------------
+// --- Dates (pure UTC arithmetic, immune to the local timezone) --------------
 
 const ISO_DATE_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
@@ -295,7 +298,7 @@ function parseISODate(value: unknown): number | null {
   if (month < 1 || month > 12 || dayOfMonth < 1 || dayOfMonth > 31) return null;
   const ms = Date.UTC(year, month - 1, dayOfMonth);
   if (!Number.isFinite(ms)) return null;
-  // 反查一遍,挡掉 2 月 30 号这种被 Date.UTC 自动进位的日期
+  // Round-trip it to reject dates like Feb 30 that Date.UTC silently rolls over
   const back = new Date(ms);
   if (
     back.getUTCFullYear() !== year ||
@@ -322,14 +325,14 @@ function calendarDay(startMs: number, dayIndex: number): CalendarDay {
   return { iso, weekday: dt.getUTCDay() as Weekday };
 }
 
-/** 从 constraints 推出第 day 天是哪一天;start_date 不可解析时返回 null */
+/** Which calendar day the trip's Nth day falls on; null when start_date is unparsable */
 function dayOf(constraints: Constraints, day: number): CalendarDay | null {
   const startMs = parseISODate(constraints?.start_date);
   if (startMs === null || !Number.isInteger(day)) return null;
   return calendarDay(startMs, day);
 }
 
-// --- 营业时间 -------------------------------------------------------------
+// --- Opening hours ---------------------------------------------------------
 
 interface Interval {
   start: number;
@@ -337,9 +340,10 @@ interface Interval {
 }
 
 /**
- * 当天的营业时段。
- *   null → 数据缺失/不可解析,视为全天开放(宁可留下让 LLM 挑,也不能把候选池洗空)
- *   []   → 当天休息
+ * The opening intervals for one day.
+ *   null → data missing or unparsable, treated as open all day (better to keep a
+ *          place in the pool than to wash the candidate list out entirely)
+ *   []   → closed that day
  */
 function rangesForDay(place: Place, when: CalendarDay | null): Interval[] | null {
   const oh: unknown = place.opening_hours;
@@ -362,7 +366,7 @@ function rangesForDay(place: Place, when: CalendarDay | null): Interval[] | null
       raw = periods[key];
       matched = true;
     } else {
-      // periods 写了,但没有这一天 → 当天休息
+      // periods is present but says nothing about this weekday → closed
       return [];
     }
   }
@@ -377,21 +381,22 @@ function rangesForDay(place: Place, when: CalendarDay | null): Interval[] | null
     const start = parseClock(entry['open']);
     let end = parseClock(entry['close']);
     if (start === null || end === null) continue;
-    if (end <= start) end += MINUTES_PER_DAY; // 跨夜:18:00–02:00
+    if (end <= start) end += MINUTES_PER_DAY; // runs past midnight, e.g. 18:00–02:00
     intervals.push({ start, end });
   }
-  // 写了时段但一条都解析不出来 → 当作未知,别误杀
+  // Intervals were listed but none parsed → treat as unknown rather than closed
   return intervals.length > 0 ? intervals : null;
 }
 
-/** [start, end] 必须整段落在某一个营业时段内 */
+/** [start, end] has to sit entirely inside one opening interval */
 function isOpenDuring(ranges: Interval[] | null, start: number, end: number): boolean {
   if (ranges === null) return true;
   if (ranges.length === 0) return false;
   return ranges.some(
     (r) =>
       (start >= r.start && end <= r.end) ||
-      // 凌晨的 block 可能属于前一段跨夜营业(00:30 落在 18:00–26:00 里)
+      // An after-midnight block may belong to the previous evening's interval
+      // (00:30 sits inside 18:00–26:00)
       (start + MINUTES_PER_DAY >= r.start && end + MINUTES_PER_DAY <= r.end),
   );
 }
@@ -401,11 +406,11 @@ function isOpenDuring(ranges: Interval[] | null, start: number, end: number): bo
 // ---------------------------------------------------------------------------
 
 /**
- * 把 trip + 全体 preferences 折叠成一份硬约束(§7 第 2 步)。
+ * Fold a trip and everyone's preferences into one hard constraint set (§7 step 2).
  *
- * - budget_ceiling 取全员【最低】,不是平均
- * - blocks_per_day 由唯一众数 pace 决定;平票或全员未填 → defaultPace
- * - required_tags / forced / excluded 分别是 dietary / must_do / no_go 的并集
+ * - budget_ceiling takes the LOWEST member ceiling, not the average
+ * - blocks_per_day follows the sole most-voted pace; a tie (or no votes) falls back to defaultPace
+ * - required_tags / forced / excluded are the unions of dietary / must_do / no_go
  */
 export function buildConstraints(
   trip: Trip,
@@ -419,7 +424,7 @@ export function buildConstraints(
 
   const prefs = asArray(preferences).filter((p) => isFilled(p));
 
-  // --- budget_ceiling:取最低那位 ---
+  // --- budget_ceiling: whoever has the least room sets it ---
   let lowest: number | null = null;
   for (const p of prefs) {
     const band = isBand(p.budget_band) ? p.budget_band : FALLBACK_BAND;
@@ -427,11 +432,11 @@ export function buildConstraints(
     if (typeof value !== 'number' || !Number.isFinite(value)) continue;
     lowest = lowest === null ? value : Math.min(lowest, value);
   }
-  // 一条 preference 都没有时没有 band 可取,只能回落到 trip 的人均预算
+  // With zero preferences there is no band to read, so fall back to the trip's per-person budget
   const budget_ceiling =
     lowest ?? finiteOr(trip?.budget_per_person, finiteOr(bandCeiling[FALLBACK_BAND], 0));
 
-  // --- pace:唯一众数,平票回落 defaultPace ---
+  // --- pace: sole winner, otherwise defaultPace ---
   const tally: Record<Pace, number> = { chill: 0, balanced: 0, packed: 0 };
   for (const p of prefs) {
     if (isPace(p.pace)) tally[p.pace] += 1;
@@ -444,7 +449,7 @@ export function buildConstraints(
     finiteOr(BLOCKS_PER_PACE[pace], BLOCKS_PER_PACE.balanced),
   );
 
-  // --- 三组标签 ---
+  // --- the three tag sets ---
   const splitAll = (values: Iterable<string>): string[] => {
     const out: string[] = [];
     for (const value of values) {
@@ -464,7 +469,7 @@ export function buildConstraints(
     splitAll(prefs.map((p) => p.no_go).filter((v): v is string => typeof v === 'string')),
   );
 
-  // --- 天数 ---
+  // --- trip length ---
   const startMs = parseISODate(trip?.start_date);
   const endMs = parseISODate(trip?.end_date);
   const days =
@@ -505,10 +510,11 @@ function matchesExcluded(
 }
 
 /**
- * 从预抓的 places 里筛出第 day 天可用的候选(§7 第 3 步)。
- * 依次剔除:非本城市 → 命中 excluded → 当天不营业。
+ * Narrow the prefetched places down to what is usable on day N (§7 step 3).
+ * Drops, in order: wrong city → matches `excluded` → closed that day.
  *
- * required_tags 不在这里做硬过滤 —— 饮食是软偏好,硬筛会把候选池砍空。
+ * required_tags is deliberately not a hard filter here — diet is a soft preference,
+ * and filtering on it would empty the candidate pool.
  */
 export function filterCandidates<P extends Place>(
   places: readonly P[],
@@ -525,7 +531,7 @@ export function filterCandidates<P extends Place>(
     if (place.city_key !== constraints.city_key) return false;
     if (matchesExcluded(place, tokens, fields)) return false;
     const ranges = rangesForDay(place, when);
-    if (ranges !== null && ranges.length === 0) return false; // 当天休息
+    if (ranges !== null && ranges.length === 0) return false; // closed that day
     return true;
   });
 }
@@ -536,7 +542,7 @@ export function filterCandidates<P extends Place>(
 
 interface CandidateIndex {
   ids: Set<string>;
-  /** 只传 id 列表时为 null → 跳过营业时间检查 */
+  /** null when only ids were supplied → opening-hours checks are skipped */
   places: Map<string, Place> | null;
 }
 
@@ -569,11 +575,11 @@ function haystackOf(block: Block, place: Place | undefined): string {
 }
 
 /**
- * 后置硬校验(§7 第 7 步)—— 整个防幻觉方案的核心。
- * 收集全部违规后返回,永不抛异常。
+ * The post-generation hard checks (§7 step 7) — the core of the anti-hallucination design.
+ * Collects every violation and returns them; it never throws.
  *
- * candidates 传 Place[](filterCandidates 的输出)时六类检查全跑;
- * 只传 id 列表时营业时间那两条自动跳过,其余照跑。
+ * Pass Place[] (what filterCandidates returns) to run all six checks. Pass a plain id
+ * list and the two opening-hours checks are skipped while the rest still run.
  */
 export function validateItinerary(
   blocks: readonly Block[],
@@ -594,37 +600,37 @@ export function validateItinerary(
   const byDay = new Map<number, Timed[]>();
 
   for (const block of list) {
-    const label = block.title || block.id || '(未命名)';
+    const label = block.title || block.id || '(untitled)';
 
-    // --- day 落在行程范围内 ---
+    // --- day sits inside the trip ---
     if (!(Number.isInteger(block.day) && block.day >= 1 && block.day <= days)) {
       violations.push({
         code: 'invalid_day',
-        message: `「${label}」的 day = ${String(block.day)},不在 1–${days} 范围内`,
+        message: `"${label}" has day = ${String(block.day)}, outside the trip range 1–${days}`,
         block_id: block.id,
         detail: { day: block.day, days },
       });
     }
 
-    // --- place_id 必须来自候选(防 LLM 发明地点) ---
+    // --- place_id must come from the candidate list (stops invented places) ---
     if (typeof block.place_id !== 'string' || !block.place_id) {
       violations.push({
         code: 'missing_place',
-        message: `「${label}」没有 place_id`,
+        message: `"${label}" has no place_id`,
         block_id: block.id,
         day: block.day,
       });
     } else if (!ids.has(block.place_id)) {
       violations.push({
         code: 'unknown_place',
-        message: `「${label}」的 place_id ${block.place_id} 不在候选列表里`,
+        message: `"${label}" points at place_id ${block.place_id}, which is not in the candidate list`,
         block_id: block.id,
         day: block.day,
         detail: { place_id: block.place_id },
       });
     }
 
-    // --- 时间可解析 ---
+    // --- time has to parse ---
     const start = parseClock(block.start_time);
     const duration = block.duration_min;
     if (
@@ -636,7 +642,7 @@ export function validateItinerary(
       violations.push({
         code: 'invalid_time',
         message:
-          `「${label}」的时间无法解析` +
+          `"${label}" has an unreadable time ` +
           `(start_time = ${String(block.start_time)}, duration_min = ${String(duration)})`,
         block_id: block.id,
         day: block.day,
@@ -650,7 +656,7 @@ export function validateItinerary(
     if (bucket) bucket.push(timed);
     else byDay.set(block.day, [timed]);
 
-    // --- 营业时间(只在拿到 Place 对象时才查) ---
+    // --- opening hours (only checkable when the Place object is on hand) ---
     if (places && typeof block.place_id === 'string') {
       const place = places.get(block.place_id);
       if (place) {
@@ -659,7 +665,7 @@ export function validateItinerary(
         if (ranges !== null && ranges.length === 0) {
           violations.push({
             code: 'closed_that_day',
-            message: `第 ${block.day} 天「${place.name}」全天不营业`,
+            message: `"${place.name}" is closed all day on day ${block.day}`,
             block_id: block.id,
             day: block.day,
             detail: { place_id: place.id, date: when?.iso },
@@ -668,8 +674,8 @@ export function validateItinerary(
           violations.push({
             code: 'outside_opening_hours',
             message:
-              `「${label}」排在 ${formatClock(timed.start)}–${formatClock(timed.end)},` +
-              `不在「${place.name}」的营业时间内`,
+              `"${label}" is scheduled ${formatClock(timed.start)}–${formatClock(timed.end)}, ` +
+              `outside the opening hours of "${place.name}"`,
             block_id: block.id,
             day: block.day,
             detail: {
@@ -683,29 +689,29 @@ export function validateItinerary(
     }
   }
 
-  // --- 总花费 ≤ budget_ceiling ---
+  // --- total spend within budget_ceiling ---
   const total = list.reduce((sum, b) => sum + finiteOr(b.cost_per_person, 0), 0);
   if (total > ceiling) {
     violations.push({
       code: 'over_budget',
-      message: `人均总花费 ${total} 超出上限 ${ceiling}`,
+      message: `Total cost per person is ${total}, over the ceiling of ${ceiling}`,
       detail: { total, ceiling, over: total - ceiling },
     });
   }
 
-  // --- 同一天时间不重叠(每天块数很少,直接两两比) ---
+  // --- no overlaps within a day (a day holds very few blocks, so compare every pair) ---
   for (const [day, items] of byDay) {
     const sorted = [...items].sort((a, b) => a.start - b.start || a.end - b.end);
     for (let i = 0; i < sorted.length; i += 1) {
       for (let j = i + 1; j < sorted.length; j += 1) {
         const a = sorted[i]!;
         const b = sorted[j]!;
-        if (b.start >= a.end) break; // 已按 start 排序,后面的只会更晚
+        if (b.start >= a.end) break; // sorted by start, so nothing later can overlap either
         violations.push({
           code: 'overlap',
           message:
-            `第 ${day} 天「${a.block.title}」(${formatClock(a.start)}–${formatClock(a.end)})` +
-            `与「${b.block.title}」(${formatClock(b.start)}–${formatClock(b.end)})时间重叠`,
+            `Day ${day}: "${a.block.title}" (${formatClock(a.start)}–${formatClock(a.end)}) ` +
+            `overlaps "${b.block.title}" (${formatClock(b.start)}–${formatClock(b.end)})`,
           block_id: a.block.id,
           day,
           detail: { with_block_id: b.block.id },
@@ -714,7 +720,7 @@ export function validateItinerary(
     }
   }
 
-  // --- forced 里的项目必须出现 ---
+  // --- everything in `forced` has to show up ---
   const haystacks = list.map((b) =>
     haystackOf(b, places && typeof b.place_id === 'string' ? places.get(b.place_id) : undefined),
   );
@@ -724,7 +730,7 @@ export function validateItinerary(
     if (!haystacks.some((h) => h.includes(token))) {
       violations.push({
         code: 'missing_forced',
-        message: `must_do「${item}」没有出现在行程里`,
+        message: `Required item "${item}" does not appear in the itinerary`,
         detail: { item },
       });
     }
@@ -741,18 +747,20 @@ function costOf(block: Block): number {
   return finiteOr(block.cost_per_person, 0);
 }
 
-/** 人均总花费 */
+/** Total cost per person */
 export function totalCost(blocks: readonly Block[]): number {
   return asArray(blocks).reduce((sum, b) => (isFilled(b) ? sum + costOf(b) : sum), 0);
 }
 
 /**
- * 超预算时按 cost 从高到低砍非 locked 的 block,直到达标(§7 第 7 步)。
+ * Drop non-locked blocks, most expensive first, until the budget fits (§7 step 7).
  *
- * - locked 的永远不砍。全员 locked 仍超预算 → 原样返回,由 validateItinerary 报 over_budget
- * - 同价按 start_time 晚的先砍,再同则按原下标靠后的先砍(确定性,测试才稳)
- * - cost <= 0 的块砍了也不省钱,跳过
- * - 返回保持原始顺序
+ * - Locked blocks are never dropped. If everything is locked and the total is still
+ *   over, the list comes back untouched and validateItinerary reports over_budget
+ * - Ties break on later start_time first, then on later original index — so the
+ *   result is deterministic and the tests stay stable
+ * - Blocks costing 0 save nothing, so they are left alone
+ * - The surviving blocks keep their original order
  */
 export function enforceBudget<B extends Block>(
   blocks: readonly B[],
@@ -785,10 +793,10 @@ export function enforceBudget<B extends Block>(
     .filter((x) => x.block.locked !== true && x.cost > 0)
     .sort(
       (a, b) =>
-        Number(a.forced) - Number(b.forced) || // 受保护的排最后
-        b.cost - a.cost || //                     贵的先砍
-        b.start - a.start || //                   同价:晚的先砍
-        b.index - a.index, //                     再同:靠后的先砍
+        Number(a.forced) - Number(b.forced) || // protected ones go last
+        b.cost - a.cost || //                     most expensive first
+        b.start - a.start || //                   same cost: later in the day first
+        b.index - a.index, //                     still tied: later in the list first
     );
 
   const dropped = new Set<number>();

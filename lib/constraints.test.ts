@@ -7,13 +7,15 @@ import {
   filterCandidates,
   totalCost,
   validateItinerary,
-  type Block,
-  type Constraints,
-  type Place,
-  type Preference,
-  type Trip,
-  type ViolationCode,
 } from './constraints';
+import type {
+  Block,
+  Constraints,
+  Place,
+  Preference,
+  Trip,
+  ViolationCode,
+} from './schemas';
 
 // ---------------------------------------------------------------------------
 // fixtures
@@ -24,24 +26,24 @@ const TRIP: Trip = {
   id: 'trip-1',
   slug: 'OSK-4K2',
   destination: 'Osaka',
-  city_key: 'osaka',
-  start_date: '2026-09-07',
-  end_date: '2026-09-09',
-  budget_per_person: 1200,
+  cityKey: 'osaka',
+  startDate: '2026-09-07',
+  endDate: '2026-09-09',
+  budgetPerPerson: 1200,
 };
 
 let memberSeq = 0;
 function makePref(over: Partial<Preference> = {}): Preference {
   memberSeq += 1;
   return {
-    member_id: `m${memberSeq}`,
-    trip_id: TRIP.id,
-    budget_band: null,
+    memberId: `m${memberSeq}`,
+    tripId: TRIP.id,
+    budgetBand: null,
     pace: null,
     interests: null,
     dietary: null,
-    must_do: null,
-    no_go: null,
+    mustDo: null,
+    noGo: null,
     ...over,
   };
 }
@@ -49,17 +51,17 @@ function makePref(over: Partial<Preference> = {}): Preference {
 function makePlace(over: Partial<Place> = {}): Place {
   return {
     id: 'p1',
-    city_key: 'osaka',
+    cityKey: 'osaka',
     name: 'Osaka Castle',
     category: 'sight',
     district: 'chuo',
     lat: null,
     lng: null,
-    opening_hours: null,
-    est_cost_per_person: 0,
-    avg_duration_min: 60,
+    openingHours: null,
+    estCostPerPerson: 0,
+    avgDurationMin: 60,
     indoor: false,
-    veg_friendly: false,
+    vegFriendly: false,
     ...over,
   };
 }
@@ -68,12 +70,12 @@ function makeBlock(over: Partial<Block> = {}): Block {
   return {
     id: 'b1',
     day: 1,
-    start_time: '10:00',
-    duration_min: 60,
+    startTime: '10:00',
+    durationMin: 60,
     title: 'Osaka Castle',
     subtitle: null,
-    place_id: 'p1',
-    cost_per_person: 0,
+    placeId: 'p1',
+    costPerPerson: 0,
     locked: false,
     ...over,
   };
@@ -96,58 +98,58 @@ function ids(blocks: readonly Block[]): string[] {
 // 1. buildConstraints
 // ---------------------------------------------------------------------------
 
-describe('buildConstraints — budget_ceiling', () => {
+describe('buildConstraints — budgetCeiling', () => {
   it('takes the lowest member ceiling, not the average', () => {
     const c = buildConstraints(TRIP, [
-      makePref({ budget_band: 'low' }),
-      makePref({ budget_band: 'mid' }),
-      makePref({ budget_band: 'high' }),
+      makePref({ budgetBand: 'low' }),
+      makePref({ budgetBand: 'mid' }),
+      makePref({ budgetBand: 'high' }),
     ]);
 
-    expect(c.budget_ceiling).toBe(BAND_CEILING.low);
+    expect(c.budgetCeiling).toBe(BAND_CEILING.low);
 
     // Pin down "not the average" explicitly — spec §7 calls this rule out by name
     const average = (BAND_CEILING.low + BAND_CEILING.mid + BAND_CEILING.high) / 3;
-    expect(c.budget_ceiling).not.toBe(average);
-    expect(c.budget_ceiling).toBeLessThan(average);
+    expect(c.budgetCeiling).not.toBe(average);
+    expect(c.budgetCeiling).toBeLessThan(average);
   });
 
   it('does not depend on member order', () => {
-    const low = makePref({ budget_band: 'low' });
-    const high = makePref({ budget_band: 'high' });
-    expect(buildConstraints(TRIP, [low, high]).budget_ceiling).toBe(
-      buildConstraints(TRIP, [high, low]).budget_ceiling,
+    const low = makePref({ budgetBand: 'low' });
+    const high = makePref({ budgetBand: 'high' });
+    expect(buildConstraints(TRIP, [low, high]).budgetCeiling).toBe(
+      buildConstraints(TRIP, [high, low]).budgetCeiling,
     );
   });
 
   it('counts a missing or invalid band as mid', () => {
-    expect(buildConstraints(TRIP, [makePref({ budget_band: null })]).budget_ceiling).toBe(
+    expect(buildConstraints(TRIP, [makePref({ budgetBand: null })]).budgetCeiling).toBe(
       BAND_CEILING.mid,
     );
     expect(
-      buildConstraints(TRIP, [makePref({ budget_band: 'luxury' as never })]).budget_ceiling,
+      buildConstraints(TRIP, [makePref({ budgetBand: 'luxury' as never })]).budgetCeiling,
     ).toBe(BAND_CEILING.mid);
     // and it still takes part in the minimum
     expect(
-      buildConstraints(TRIP, [makePref({ budget_band: null }), makePref({ budget_band: 'low' })])
-        .budget_ceiling,
+      buildConstraints(TRIP, [makePref({ budgetBand: null }), makePref({ budgetBand: 'low' })])
+        .budgetCeiling,
     ).toBe(BAND_CEILING.low);
   });
 
-  it('falls back to trip.budget_per_person when there are no preferences at all', () => {
-    expect(buildConstraints(TRIP, []).budget_ceiling).toBe(TRIP.budget_per_person);
-    expect(buildConstraints(TRIP).budget_ceiling).toBe(TRIP.budget_per_person);
+  it('falls back to trip.budgetPerPerson when there are no preferences at all', () => {
+    expect(buildConstraints(TRIP, []).budgetCeiling).toBe(TRIP.budgetPerPerson);
+    expect(buildConstraints(TRIP).budgetCeiling).toBe(TRIP.budgetPerPerson);
   });
 
   it('lets the band → amount mapping be overridden', () => {
-    const c = buildConstraints(TRIP, [makePref({ budget_band: 'low' })], {
+    const c = buildConstraints(TRIP, [makePref({ budgetBand: 'low' })], {
       bandCeiling: { low: 300, mid: 600, high: 900 },
     });
-    expect(c.budget_ceiling).toBe(300);
+    expect(c.budgetCeiling).toBe(300);
   });
 });
 
-describe('buildConstraints — blocks_per_day', () => {
+describe('buildConstraints — blocksPerDay', () => {
   it('follows the majority pace: chill 3 / balanced 4 / packed 5', () => {
     const chill = buildConstraints(TRIP, [
       makePref({ pace: 'chill' }),
@@ -155,7 +157,7 @@ describe('buildConstraints — blocks_per_day', () => {
       makePref({ pace: 'packed' }),
     ]);
     expect(chill.pace).toBe('chill');
-    expect(chill.blocks_per_day).toBe(3);
+    expect(chill.blocksPerDay).toBe(3);
 
     const balanced = buildConstraints(TRIP, [
       makePref({ pace: 'balanced' }),
@@ -163,7 +165,7 @@ describe('buildConstraints — blocks_per_day', () => {
       makePref({ pace: 'chill' }),
     ]);
     expect(balanced.pace).toBe('balanced');
-    expect(balanced.blocks_per_day).toBe(4);
+    expect(balanced.blocksPerDay).toBe(4);
 
     const packed = buildConstraints(TRIP, [
       makePref({ pace: 'packed' }),
@@ -171,13 +173,13 @@ describe('buildConstraints — blocks_per_day', () => {
       makePref({ pace: 'chill' }),
     ]);
     expect(packed.pace).toBe('packed');
-    expect(packed.blocks_per_day).toBe(5);
+    expect(packed.blocksPerDay).toBe(5);
   });
 
   it('falls back to balanced on a tie: chill x1 vs packed x1', () => {
     const c = buildConstraints(TRIP, [makePref({ pace: 'chill' }), makePref({ pace: 'packed' })]);
     expect(c.pace).toBe('balanced');
-    expect(c.blocks_per_day).toBe(4);
+    expect(c.blocksPerDay).toBe(4);
   });
 
   it('falls back to balanced on a tie: balanced x2 vs packed x2', () => {
@@ -188,7 +190,7 @@ describe('buildConstraints — blocks_per_day', () => {
       makePref({ pace: 'packed' }),
     ]);
     expect(c.pace).toBe('balanced');
-    expect(c.blocks_per_day).toBe(4);
+    expect(c.blocksPerDay).toBe(4);
   });
 
   it('falls back to balanced even when neither tied side is balanced: chill x2 vs packed x2', () => {
@@ -199,7 +201,7 @@ describe('buildConstraints — blocks_per_day', () => {
       makePref({ pace: 'packed' }),
     ]);
     expect(c.pace).toBe('balanced');
-    expect(c.blocks_per_day).toBe(4);
+    expect(c.blocksPerDay).toBe(4);
   });
 
   it('falls back to balanced on a three-way tie', () => {
@@ -221,44 +223,44 @@ describe('buildConstraints — blocks_per_day', () => {
       defaultPace: 'chill',
     });
     expect(c.pace).toBe('chill');
-    expect(c.blocks_per_day).toBe(3);
+    expect(c.blocksPerDay).toBe(3);
   });
 });
 
 describe('buildConstraints — tag unions', () => {
-  it('required_tags is the union of everyone dietary, deduped case-insensitively', () => {
+  it('requiredTags is the union of everyone dietary, deduped case-insensitively', () => {
     const c = buildConstraints(TRIP, [
       makePref({ dietary: ['halal', 'vegetarian'] }),
       makePref({ dietary: ['Halal', '  ', 'no pork'] }),
       makePref({ dietary: null }),
     ]);
-    expect(c.required_tags).toEqual(['halal', 'vegetarian', 'no pork']);
+    expect(c.requiredTags).toEqual(['halal', 'vegetarian', 'no pork']);
   });
 
-  it('forced collects every must_do, split on separators', () => {
+  it('forced collects every mustDo, split on separators', () => {
     const c = buildConstraints(TRIP, [
-      makePref({ must_do: 'Universal Studios, Dotonbori' }),
-      makePref({ must_do: 'teamLab; Universal Studios' }),
-      makePref({ must_do: '   ' }),
+      makePref({ mustDo: 'Universal Studios, Dotonbori' }),
+      makePref({ mustDo: 'teamLab; Universal Studios' }),
+      makePref({ mustDo: '   ' }),
     ]);
     expect(c.forced).toEqual(['Universal Studios', 'Dotonbori', 'teamLab']);
   });
 
-  it('excluded is the union of everyone no_go', () => {
+  it('excluded is the union of everyone noGo', () => {
     const c = buildConstraints(TRIP, [
-      makePref({ no_go: 'nightclub; casino' }),
-      makePref({ no_go: 'nightclub\nseafood' }),
+      makePref({ noGo: 'nightclub; casino' }),
+      makePref({ noGo: 'nightclub\nseafood' }),
     ]);
     expect(c.excluded).toEqual(['nightclub', 'casino', 'seafood']);
   });
 
   it('splits full-width separators too (members may type in any locale)', () => {
-    const c = buildConstraints(TRIP, [makePref({ no_go: 'casino，nightclub、seafood' })]);
+    const c = buildConstraints(TRIP, [makePref({ noGo: 'casino，nightclub、seafood' })]);
     expect(c.excluded).toEqual(['casino', 'nightclub', 'seafood']);
   });
 
   it('lets the splitter be overridden', () => {
-    const c = buildConstraints(TRIP, [makePref({ no_go: 'a|b' })], {
+    const c = buildConstraints(TRIP, [makePref({ noGo: 'a|b' })], {
       splitFreeText: (v) => v.split('|'),
     });
     expect(c.excluded).toEqual(['a', 'b']);
@@ -266,7 +268,7 @@ describe('buildConstraints — tag unions', () => {
 
   it('returns empty arrays when nobody filled anything in', () => {
     const c = buildConstraints(TRIP, [makePref()]);
-    expect(c.required_tags).toEqual([]);
+    expect(c.requiredTags).toEqual([]);
     expect(c.forced).toEqual([]);
     expect(c.excluded).toEqual([]);
   });
@@ -279,25 +281,25 @@ describe('buildConstraints — trip length and passthrough', () => {
 
   it('same-day trip is 1 day', () => {
     expect(
-      buildConstraints({ ...TRIP, start_date: '2026-09-07', end_date: '2026-09-07' }, []).days,
+      buildConstraints({ ...TRIP, startDate: '2026-09-07', endDate: '2026-09-07' }, []).days,
     ).toBe(1);
   });
 
   it('spans month boundaries correctly', () => {
     expect(
-      buildConstraints({ ...TRIP, start_date: '2026-08-30', end_date: '2026-09-02' }, []).days,
+      buildConstraints({ ...TRIP, startDate: '2026-08-30', endDate: '2026-09-02' }, []).days,
     ).toBe(4);
   });
 
   it('falls back to 1 day on invalid dates instead of throwing', () => {
-    expect(buildConstraints({ ...TRIP, end_date: '2026-02-30' }, []).days).toBe(1);
-    expect(buildConstraints({ ...TRIP, start_date: 'tomorrow' }, []).days).toBe(1);
+    expect(buildConstraints({ ...TRIP, endDate: '2026-02-30' }, []).days).toBe(1);
+    expect(buildConstraints({ ...TRIP, startDate: 'tomorrow' }, []).days).toBe(1);
   });
 
-  it('passes city_key and start_date straight through', () => {
+  it('passes cityKey and startDate straight through', () => {
     const c = buildConstraints(TRIP, []);
-    expect(c.city_key).toBe('osaka');
-    expect(c.start_date).toBe('2026-09-07');
+    expect(c.cityKey).toBe('osaka');
+    expect(c.startDate).toBe('2026-09-07');
   });
 });
 
@@ -334,13 +336,13 @@ describe('filterCandidates', () => {
     ).toEqual([]);
   });
 
-  it('ignores a single-ASCII-character no_go (a "b" must not drop every bar)', () => {
+  it('ignores a single-ASCII-character noGo (a "b" must not drop every bar)', () => {
     const c = constraintsWith({ excluded: ['b'] });
     const places = [makePlace({ id: 'bar', category: 'bar' })];
     expect(filterCandidates(places, c, 1).map((p) => p.id)).toEqual(['bar']);
   });
 
-  it('still honours a single-glyph no_go from a non-ASCII script', () => {
+  it('still honours a single-glyph noGo from a non-ASCII script', () => {
     // Prefetched Osaka POIs carry Japanese names, and one glyph there is a whole word
     const c = constraintsWith({ excluded: ['酒'] });
     const places = [makePlace({ id: 'drop', category: '居酒屋' }), makePlace({ id: 'keep' })];
@@ -349,7 +351,7 @@ describe('filterCandidates', () => {
 
   it('drops places from other cities', () => {
     const c = constraintsWith();
-    const places = [makePlace({ id: 'osk' }), makePlace({ id: 'kul', city_key: 'kualalumpur' })];
+    const places = [makePlace({ id: 'osk' }), makePlace({ id: 'kul', cityKey: 'kualalumpur' })];
     expect(filterCandidates(places, c, 1).map((p) => p.id)).toEqual(['osk']);
   });
 
@@ -358,7 +360,7 @@ describe('filterCandidates', () => {
     // Day 1 is 2026-09-07, a Monday (weekday 1); this place only lists Tuesday
     const closedOnMonday = makePlace({
       id: 'tue-only',
-      opening_hours: { periods: { 2: [{ open: '09:00', close: '18:00' }] } },
+      openingHours: { periods: { 2: [{ open: '09:00', close: '18:00' }] } },
     });
     expect(filterCandidates([closedOnMonday], c, 1)).toEqual([]);
     expect(filterCandidates([closedOnMonday], c, 2).map((p) => p.id)).toEqual(['tue-only']);
@@ -368,7 +370,7 @@ describe('filterCandidates', () => {
     const c = constraintsWith();
     const place = makePlace({
       id: 'x',
-      opening_hours: { periods: { 1: [], 2: [{ open: '09:00', close: '18:00' }] } },
+      openingHours: { periods: { 1: [], 2: [{ open: '09:00', close: '18:00' }] } },
     });
     expect(filterCandidates([place], c, 1)).toEqual([]);
     expect(filterCandidates([place], c, 2).map((p) => p.id)).toEqual(['x']);
@@ -378,7 +380,7 @@ describe('filterCandidates', () => {
     const c = constraintsWith();
     const place = makePlace({
       id: 'x',
-      opening_hours: {
+      openingHours: {
         periods: { 1: [{ open: '09:00', close: '18:00' }] },
         exceptions: { '2026-09-07': [] },
       },
@@ -386,12 +388,12 @@ describe('filterCandidates', () => {
     expect(filterCandidates([place], c, 1)).toEqual([]);
   });
 
-  it('keeps places with missing opening_hours (never wash the candidate pool out)', () => {
+  it('keeps places with missing openingHours (never wash the candidate pool out)', () => {
     const c = constraintsWith();
-    const unknown = makePlace({ id: 'unknown', opening_hours: null });
+    const unknown = makePlace({ id: 'unknown', openingHours: null });
     const garbage = makePlace({
       id: 'garbage',
-      opening_hours: { periods: { 1: [{ open: '???', close: '???' }] } },
+      openingHours: { periods: { 1: [{ open: '???', close: '???' }] } },
     });
     expect(filterCandidates([unknown, garbage], c, 1).map((p) => p.id)).toEqual([
       'unknown',
@@ -399,9 +401,9 @@ describe('filterCandidates', () => {
     ]);
   });
 
-  it('always keeps an always_open place', () => {
+  it('always keeps an alwaysOpen place', () => {
     const c = constraintsWith();
-    const place = makePlace({ id: 'x', opening_hours: { always_open: true, periods: { 2: [] } } });
+    const place = makePlace({ id: 'x', openingHours: { alwaysOpen: true, periods: { 2: [] } } });
     expect(filterCandidates([place], c, 1).map((p) => p.id)).toEqual(['x']);
   });
 
@@ -422,44 +424,44 @@ describe('filterCandidates', () => {
 // 3. validateItinerary
 // ---------------------------------------------------------------------------
 
-describe('validateItinerary — place_id must come from the candidates', () => {
+describe('validateItinerary — placeId must come from the candidates', () => {
   it('reports nothing for a clean itinerary', () => {
-    const c = constraintsWith({ budget_ceiling: 500 });
+    const c = constraintsWith({ budgetCeiling: 500 });
     const places = [makePlace({ id: 'p1' })];
-    const blocks = [makeBlock({ place_id: 'p1', cost_per_person: 100 })];
+    const blocks = [makeBlock({ placeId: 'p1', costPerPerson: 100 })];
     expect(validateItinerary(blocks, c, places)).toEqual({ ok: true, violations: [] });
   });
 
   it('flags a place the LLM invented', () => {
     const c = constraintsWith();
-    const result = validateItinerary([makeBlock({ place_id: 'hallucinated' })], c, ['p1']);
+    const result = validateItinerary([makeBlock({ placeId: 'hallucinated' })], c, ['p1']);
     expect(result.ok).toBe(false);
     expect(codes(result.violations)).toEqual(['unknown_place']);
-    expect(result.violations[0]?.detail).toMatchObject({ place_id: 'hallucinated' });
+    expect(result.violations[0]?.detail).toMatchObject({ placeId: 'hallucinated' });
   });
 
-  it('flags a block with no place_id', () => {
+  it('flags a block with no placeId', () => {
     const c = constraintsWith();
-    const result = validateItinerary([makeBlock({ place_id: null })], c, ['p1']);
+    const result = validateItinerary([makeBlock({ placeId: null })], c, ['p1']);
     expect(codes(result.violations)).toEqual(['missing_place']);
   });
 });
 
 describe('validateItinerary — budget', () => {
   it('passes when the total lands exactly on the ceiling', () => {
-    const c = constraintsWith({ budget_ceiling: 300 });
+    const c = constraintsWith({ budgetCeiling: 300 });
     const blocks = [
-      makeBlock({ id: 'a', cost_per_person: 200 }),
-      makeBlock({ id: 'b', start_time: '14:00', cost_per_person: 100 }),
+      makeBlock({ id: 'a', costPerPerson: 200 }),
+      makeBlock({ id: 'b', startTime: '14:00', costPerPerson: 100 }),
     ];
     expect(validateItinerary(blocks, c, ['p1']).ok).toBe(true);
   });
 
   it('flags a total one unit over the ceiling', () => {
-    const c = constraintsWith({ budget_ceiling: 300 });
+    const c = constraintsWith({ budgetCeiling: 300 });
     const blocks = [
-      makeBlock({ id: 'a', cost_per_person: 200 }),
-      makeBlock({ id: 'b', start_time: '14:00', cost_per_person: 101 }),
+      makeBlock({ id: 'a', costPerPerson: 200 }),
+      makeBlock({ id: 'b', startTime: '14:00', costPerPerson: 101 }),
     ];
     const result = validateItinerary(blocks, c, ['p1']);
     expect(codes(result.violations)).toEqual(['over_budget']);
@@ -467,10 +469,10 @@ describe('validateItinerary — budget', () => {
   });
 
   it('sums across the whole trip, not per day', () => {
-    const c = constraintsWith({ budget_ceiling: 150 });
+    const c = constraintsWith({ budgetCeiling: 150 });
     const blocks = [
-      makeBlock({ id: 'a', day: 1, cost_per_person: 100 }),
-      makeBlock({ id: 'b', day: 2, cost_per_person: 100 }),
+      makeBlock({ id: 'a', day: 1, costPerPerson: 100 }),
+      makeBlock({ id: 'b', day: 2, costPerPerson: 100 }),
     ];
     expect(codes(validateItinerary(blocks, c, ['p1']).violations)).toContain('over_budget');
   });
@@ -480,19 +482,19 @@ describe('validateItinerary — no overlaps within a day', () => {
   it('catches an overlap', () => {
     const c = constraintsWith();
     const blocks = [
-      makeBlock({ id: 'a', start_time: '10:00', duration_min: 120 }),
-      makeBlock({ id: 'b', start_time: '11:00', duration_min: 60 }),
+      makeBlock({ id: 'a', startTime: '10:00', durationMin: 120 }),
+      makeBlock({ id: 'b', startTime: '11:00', durationMin: 60 }),
     ];
     const result = validateItinerary(blocks, c, ['p1']);
     expect(codes(result.violations)).toEqual(['overlap']);
-    expect(result.violations[0]).toMatchObject({ day: 1, detail: { with_block_id: 'b' } });
+    expect(result.violations[0]).toMatchObject({ day: 1, detail: { withBlockId: 'b' } });
   });
 
   it('treats back-to-back blocks as fine', () => {
     const c = constraintsWith();
     const blocks = [
-      makeBlock({ id: 'a', start_time: '10:00', duration_min: 60 }),
-      makeBlock({ id: 'b', start_time: '11:00', duration_min: 60 }),
+      makeBlock({ id: 'a', startTime: '10:00', durationMin: 60 }),
+      makeBlock({ id: 'b', startTime: '11:00', durationMin: 60 }),
     ];
     expect(validateItinerary(blocks, c, ['p1']).ok).toBe(true);
   });
@@ -500,8 +502,8 @@ describe('validateItinerary — no overlaps within a day', () => {
   it('does not treat the same slot on different days as an overlap', () => {
     const c = constraintsWith();
     const blocks = [
-      makeBlock({ id: 'a', day: 1, start_time: '10:00' }),
-      makeBlock({ id: 'b', day: 2, start_time: '10:00' }),
+      makeBlock({ id: 'a', day: 1, startTime: '10:00' }),
+      makeBlock({ id: 'b', day: 2, startTime: '10:00' }),
     ];
     expect(validateItinerary(blocks, c, ['p1']).ok).toBe(true);
   });
@@ -509,9 +511,9 @@ describe('validateItinerary — no overlaps within a day', () => {
   it('reports both pairs when one long block swallows two short ones', () => {
     const c = constraintsWith();
     const blocks = [
-      makeBlock({ id: 'big', start_time: '09:00', duration_min: 300 }),
-      makeBlock({ id: 's1', start_time: '10:00', duration_min: 30 }),
-      makeBlock({ id: 's2', start_time: '12:00', duration_min: 30 }),
+      makeBlock({ id: 'big', startTime: '09:00', durationMin: 300 }),
+      makeBlock({ id: 's1', startTime: '10:00', durationMin: 30 }),
+      makeBlock({ id: 's2', startTime: '12:00', durationMin: 30 }),
     ];
     const result = validateItinerary(blocks, c, ['p1']);
     expect(codes(result.violations)).toEqual(['overlap', 'overlap']);
@@ -522,18 +524,18 @@ describe('validateItinerary — opening hours', () => {
   const openMonday9to18 = makePlace({
     id: 'p1',
     name: 'Osaka Castle',
-    opening_hours: { periods: { 1: [{ open: '09:00', close: '18:00' }] } },
+    openingHours: { periods: { 1: [{ open: '09:00', close: '18:00' }] } },
   });
 
   it('passes when the block sits entirely inside the opening hours', () => {
     const c = constraintsWith();
-    const blocks = [makeBlock({ start_time: '10:00', duration_min: 120 })];
+    const blocks = [makeBlock({ startTime: '10:00', durationMin: 120 })];
     expect(validateItinerary(blocks, c, [openMonday9to18]).ok).toBe(true);
   });
 
   it('flags a block that runs past closing time', () => {
     const c = constraintsWith();
-    const blocks = [makeBlock({ start_time: '17:00', duration_min: 120 })];
+    const blocks = [makeBlock({ startTime: '17:00', durationMin: 120 })];
     const result = validateItinerary(blocks, c, [openMonday9to18]);
     expect(codes(result.violations)).toEqual(['outside_opening_hours']);
     expect(result.violations[0]?.detail).toMatchObject({ block: '17:00-19:00' });
@@ -541,7 +543,7 @@ describe('validateItinerary — opening hours', () => {
 
   it('flags a block scheduled before opening time', () => {
     const c = constraintsWith();
-    const blocks = [makeBlock({ start_time: '08:00', duration_min: 30 })];
+    const blocks = [makeBlock({ startTime: '08:00', durationMin: 30 })];
     expect(codes(validateItinerary(blocks, c, [openMonday9to18]).violations)).toEqual([
       'outside_opening_hours',
     ]);
@@ -552,7 +554,7 @@ describe('validateItinerary — opening hours', () => {
     // Open Tuesdays only, while day 1 of the trip is a Monday
     const tuesdayOnly = makePlace({
       id: 'p1',
-      opening_hours: { periods: { 2: [{ open: '09:00', close: '18:00' }] } },
+      openingHours: { periods: { 2: [{ open: '09:00', close: '18:00' }] } },
     });
     expect(codes(validateItinerary([makeBlock()], c, [tuesdayOnly]).violations)).toEqual([
       'closed_that_day',
@@ -563,38 +565,38 @@ describe('validateItinerary — opening hours', () => {
     const c = constraintsWith();
     const bar = makePlace({
       id: 'p1',
-      opening_hours: { periods: { 1: [{ open: '18:00', close: '02:00' }] } },
+      openingHours: { periods: { 1: [{ open: '18:00', close: '02:00' }] } },
     });
     expect(
-      validateItinerary([makeBlock({ start_time: '23:00', duration_min: 90 })], c, [bar]).ok,
+      validateItinerary([makeBlock({ startTime: '23:00', durationMin: 90 })], c, [bar]).ok,
     ).toBe(true);
     // A 00:30 block belongs to that same past-midnight interval
     expect(
-      validateItinerary([makeBlock({ start_time: '00:30', duration_min: 60 })], c, [bar]).ok,
+      validateItinerary([makeBlock({ startTime: '00:30', durationMin: 60 })], c, [bar]).ok,
     ).toBe(true);
     expect(
       codes(
-        validateItinerary([makeBlock({ start_time: '03:00', duration_min: 60 })], c, [bar])
+        validateItinerary([makeBlock({ startTime: '03:00', durationMin: 60 })], c, [bar])
           .violations,
       ),
     ).toEqual(['outside_opening_hours']);
   });
 
-  it('reports nothing when opening_hours is missing', () => {
+  it('reports nothing when openingHours is missing', () => {
     const c = constraintsWith();
-    const unknown = makePlace({ id: 'p1', opening_hours: null });
-    expect(validateItinerary([makeBlock({ start_time: '03:00' })], c, [unknown]).ok).toBe(true);
+    const unknown = makePlace({ id: 'p1', openingHours: null });
+    expect(validateItinerary([makeBlock({ startTime: '03:00' })], c, [unknown]).ok).toBe(true);
   });
 
   it('skips the opening-hours checks when given only ids, and runs the rest', () => {
     const c = constraintsWith();
-    const blocks = [makeBlock({ start_time: '23:00', duration_min: 60 })];
+    const blocks = [makeBlock({ startTime: '23:00', durationMin: 60 })];
 
     // Passing Place[] surfaces the violation
     expect(codes(validateItinerary(blocks, c, [openMonday9to18]).violations)).toEqual([
       'outside_opening_hours',
     ]);
-    // Ids alone cannot answer the opening-hours question, but place_id is still checked
+    // Ids alone cannot answer the opening-hours question, but placeId is still checked
     expect(validateItinerary(blocks, c, ['p1']).ok).toBe(true);
     expect(codes(validateItinerary(blocks, c, ['other']).violations)).toEqual(['unknown_place']);
   });
@@ -659,26 +661,26 @@ describe('validateItinerary — bad data', () => {
   it('flags an unreadable time without affecting the other blocks', () => {
     const c = constraintsWith();
     const blocks = [
-      makeBlock({ id: 'bad', start_time: 'later' }),
-      makeBlock({ id: 'ok', start_time: '14:00' }),
+      makeBlock({ id: 'bad', startTime: 'later' }),
+      makeBlock({ id: 'ok', startTime: '14:00' }),
     ];
     const result = validateItinerary(blocks, c, ['p1']);
     expect(codes(result.violations)).toEqual(['invalid_time']);
-    expect(result.violations[0]?.block_id).toBe('bad');
+    expect(result.violations[0]?.blockId).toBe('bad');
   });
 
   it('flags a negative duration', () => {
     const c = constraintsWith();
     expect(
-      codes(validateItinerary([makeBlock({ duration_min: -30 })], c, ['p1']).violations),
+      codes(validateItinerary([makeBlock({ durationMin: -30 })], c, ['p1']).violations),
     ).toEqual(['invalid_time']);
   });
 
   it('returns every violation at once instead of stopping at the first', () => {
-    const c = constraintsWith({ budget_ceiling: 100, forced: ['Universal Studios'] });
+    const c = constraintsWith({ budgetCeiling: 100, forced: ['Universal Studios'] });
     const blocks = [
-      makeBlock({ id: 'a', start_time: '10:00', duration_min: 120, cost_per_person: 200 }),
-      makeBlock({ id: 'b', start_time: '11:00', place_id: 'ghost', cost_per_person: 50 }),
+      makeBlock({ id: 'a', startTime: '10:00', durationMin: 120, costPerPerson: 200 }),
+      makeBlock({ id: 'b', startTime: '11:00', placeId: 'ghost', costPerPerson: 50 }),
     ];
     const result = validateItinerary(blocks, c, ['p1']);
     expect(result.ok).toBe(false);
@@ -706,20 +708,20 @@ describe('validateItinerary — bad data', () => {
 
 describe('enforceBudget', () => {
   it('leaves an already-affordable itinerary alone', () => {
-    const c = constraintsWith({ budget_ceiling: 300 });
+    const c = constraintsWith({ budgetCeiling: 300 });
     const blocks = [
-      makeBlock({ id: 'a', cost_per_person: 100 }),
-      makeBlock({ id: 'b', cost_per_person: 100 }),
+      makeBlock({ id: 'a', costPerPerson: 100 }),
+      makeBlock({ id: 'b', costPerPerson: 100 }),
     ];
     expect(ids(enforceBudget(blocks, c))).toEqual(['a', 'b']);
   });
 
   it('cuts most expensive first and stops once it fits', () => {
-    const c = constraintsWith({ budget_ceiling: 100 });
+    const c = constraintsWith({ budgetCeiling: 100 });
     const blocks = [
-      makeBlock({ id: 'a', cost_per_person: 50 }),
-      makeBlock({ id: 'b', cost_per_person: 60 }),
-      makeBlock({ id: 'c', cost_per_person: 30 }),
+      makeBlock({ id: 'a', costPerPerson: 50 }),
+      makeBlock({ id: 'b', costPerPerson: 60 }),
+      makeBlock({ id: 'c', costPerPerson: 30 }),
     ];
     const kept = enforceBudget(blocks, c);
     expect(ids(kept)).toEqual(['a', 'c']); // b (the priciest) goes, 80 <= 100, order preserved
@@ -727,11 +729,11 @@ describe('enforceBudget', () => {
   });
 
   it('stops as soon as the total lands exactly on the ceiling', () => {
-    const c = constraintsWith({ budget_ceiling: 100 });
+    const c = constraintsWith({ budgetCeiling: 100 });
     const blocks = [
-      makeBlock({ id: 'a', cost_per_person: 60 }),
-      makeBlock({ id: 'b', cost_per_person: 55 }),
-      makeBlock({ id: 'c', cost_per_person: 45 }),
+      makeBlock({ id: 'a', costPerPerson: 60 }),
+      makeBlock({ id: 'b', costPerPerson: 55 }),
+      makeBlock({ id: 'c', costPerPerson: 45 }),
     ];
     const kept = enforceBudget(blocks, c); // 160 - 60 = 100, right on the line
     expect(ids(kept)).toEqual(['b', 'c']);
@@ -739,10 +741,10 @@ describe('enforceBudget', () => {
   });
 
   it('never cuts a locked block — an all-locked day stays untouched', () => {
-    const c = constraintsWith({ budget_ceiling: 10 });
+    const c = constraintsWith({ budgetCeiling: 10 });
     const blocks = [
-      makeBlock({ id: 'a', cost_per_person: 500, locked: true }),
-      makeBlock({ id: 'b', cost_per_person: 400, locked: true }),
+      makeBlock({ id: 'a', costPerPerson: 500, locked: true }),
+      makeBlock({ id: 'b', costPerPerson: 400, locked: true }),
     ];
     const kept = enforceBudget(blocks, c);
     expect(ids(kept)).toEqual(['a', 'b']);
@@ -751,49 +753,49 @@ describe('enforceBudget', () => {
   });
 
   it('cuts the second most expensive when the priciest block is locked', () => {
-    const c = constraintsWith({ budget_ceiling: 100 });
+    const c = constraintsWith({ budgetCeiling: 100 });
     const blocks = [
-      makeBlock({ id: 'locked', cost_per_person: 70, locked: true }),
-      makeBlock({ id: 'b', cost_per_person: 60 }),
-      makeBlock({ id: 'c', cost_per_person: 30 }),
+      makeBlock({ id: 'locked', costPerPerson: 70, locked: true }),
+      makeBlock({ id: 'b', costPerPerson: 60 }),
+      makeBlock({ id: 'c', costPerPerson: 30 }),
     ];
     expect(ids(enforceBudget(blocks, c))).toEqual(['locked', 'c']);
   });
 
-  it('breaks cost ties on the later start_time, deterministically', () => {
-    const c = constraintsWith({ budget_ceiling: 100 });
+  it('breaks cost ties on the later startTime, deterministically', () => {
+    const c = constraintsWith({ budgetCeiling: 100 });
     const blocks = [
-      makeBlock({ id: 'morning', start_time: '09:00', cost_per_person: 60 }),
-      makeBlock({ id: 'evening', start_time: '19:00', cost_per_person: 60 }),
+      makeBlock({ id: 'morning', startTime: '09:00', costPerPerson: 60 }),
+      makeBlock({ id: 'evening', startTime: '19:00', costPerPerson: 60 }),
     ];
     expect(ids(enforceBudget(blocks, c))).toEqual(['morning']);
     expect(ids(enforceBudget(blocks, c))).toEqual(ids(enforceBudget(blocks, c)));
   });
 
   it('leaves zero-cost blocks alone since cutting them saves nothing', () => {
-    const c = constraintsWith({ budget_ceiling: 50 });
+    const c = constraintsWith({ budgetCeiling: 50 });
     const blocks = [
-      makeBlock({ id: 'locked', cost_per_person: 100, locked: true }),
-      makeBlock({ id: 'free', cost_per_person: 0 }),
+      makeBlock({ id: 'locked', costPerPerson: 100, locked: true }),
+      makeBlock({ id: 'free', costPerPerson: 0 }),
     ];
     expect(ids(enforceBudget(blocks, c))).toEqual(['locked', 'free']);
   });
 
-  it('cuts must_do blocks last when protectForced is on', () => {
-    const c = constraintsWith({ budget_ceiling: 100, forced: ['Universal Studios'] });
+  it('cuts mustDo blocks last when protectForced is on', () => {
+    const c = constraintsWith({ budgetCeiling: 100, forced: ['Universal Studios'] });
     const blocks = [
-      makeBlock({ id: 'usj', title: 'Universal Studios', cost_per_person: 90 }),
-      makeBlock({ id: 'aq', title: 'Osaka Aquarium', start_time: '15:00', cost_per_person: 80 }),
+      makeBlock({ id: 'usj', title: 'Universal Studios', costPerPerson: 90 }),
+      makeBlock({ id: 'aq', title: 'Osaka Aquarium', startTime: '15:00', costPerPerson: 80 }),
     ];
     // Default is literal §7: cost only, so the priciest (usj) goes first
     expect(ids(enforceBudget(blocks, c))).toEqual(['aq']);
-    // With protection on, aq goes instead and the must_do survives
+    // With protection on, aq goes instead and the mustDo survives
     expect(ids(enforceBudget(blocks, c, { protectForced: true }))).toEqual(['usj']);
   });
 
   it('returns a new array and does not mutate the input', () => {
-    const c = constraintsWith({ budget_ceiling: 100 });
-    const blocks = [makeBlock({ id: 'a', cost_per_person: 200 })];
+    const c = constraintsWith({ budgetCeiling: 100 });
+    const blocks = [makeBlock({ id: 'a', costPerPerson: 200 })];
     const kept = enforceBudget(blocks, c);
     expect(kept).not.toBe(blocks);
     expect(blocks).toHaveLength(1);
@@ -801,14 +803,14 @@ describe('enforceBudget', () => {
   });
 
   it('preserves extra fields the caller carries on its own type', () => {
-    const c = constraintsWith({ budget_ceiling: 100 });
-    const blocks = [{ ...makeBlock({ id: 'a', cost_per_person: 50 }), reason: { budget: 'ok' } }];
+    const c = constraintsWith({ budgetCeiling: 100 });
+    const blocks = [{ ...makeBlock({ id: 'a', costPerPerson: 50 }), reason: { budget: 'ok' } }];
     const [first] = enforceBudget(blocks, c);
     expect(first?.reason).toEqual({ budget: 'ok' });
   });
 
   it('never throws on malformed input', () => {
-    const c = constraintsWith({ budget_ceiling: 100 });
+    const c = constraintsWith({ budgetCeiling: 100 });
     expect(() => enforceBudget(null as unknown as Block[], c)).not.toThrow();
     expect(enforceBudget([null, undefined] as unknown as Block[], c)).toEqual([]);
   });
@@ -821,21 +823,21 @@ describe('enforceBudget', () => {
 describe('enforceBudget feeding validateItinerary', () => {
   it('clears over_budget once the trimming has run', () => {
     const c = buildConstraints(TRIP, [
-      makePref({ budget_band: 'low' }), // ceiling = 800
-      makePref({ budget_band: 'high' }),
+      makePref({ budgetBand: 'low' }), // ceiling = 800
+      makePref({ budgetBand: 'high' }),
     ]);
-    const places = [makePlace({ id: 'p1', opening_hours: null })];
+    const places = [makePlace({ id: 'p1', openingHours: null })];
     const blocks = [
-      makeBlock({ id: 'a', day: 1, start_time: '09:00', cost_per_person: 500 }),
-      makeBlock({ id: 'b', day: 1, start_time: '13:00', cost_per_person: 400 }),
-      makeBlock({ id: 'c', day: 2, start_time: '09:00', cost_per_person: 300 }),
+      makeBlock({ id: 'a', day: 1, startTime: '09:00', costPerPerson: 500 }),
+      makeBlock({ id: 'b', day: 1, startTime: '13:00', costPerPerson: 400 }),
+      makeBlock({ id: 'c', day: 2, startTime: '09:00', costPerPerson: 300 }),
     ];
 
-    expect(c.budget_ceiling).toBe(800);
+    expect(c.budgetCeiling).toBe(800);
     expect(codes(validateItinerary(blocks, c, places).violations)).toContain('over_budget');
 
     const trimmed = enforceBudget(blocks, c);
-    expect(totalCost(trimmed)).toBeLessThanOrEqual(c.budget_ceiling);
+    expect(totalCost(trimmed)).toBeLessThanOrEqual(c.budgetCeiling);
     expect(validateItinerary(trimmed, c, places)).toEqual({ ok: true, violations: [] });
   });
 });

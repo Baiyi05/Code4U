@@ -2,7 +2,7 @@
  * lib/constraints.ts — the rule engine (layer L3 of technical-spec §7).
  *
  * Pure functions only: no network, no LLM, no Supabase, no system clock.
- * Every date is derived from the caller's start_date + day, so results do not
+ * Every date is derived from the caller's startDate + day, so results do not
  * depend on the timezone the process happens to run in.
  *
  * Covers three steps of §7:
@@ -11,136 +11,24 @@
  *   step 7  validateItinerary   — post-generation hard checks (the anti-hallucination core)
  *           enforceBudget       — drop non-locked blocks until the budget fits
  *
- * Type sourcing: once lib/schemas.ts (Zod, frozen Sep 5) lands, the input types
- * below should be imported from there and re-exported instead of redefined here.
+ * Every type it touches comes from lib/schemas.ts. That file is the single
+ * source of truth for the project; nothing is redefined here.
  */
 
-// ---------------------------------------------------------------------------
-// Input types (mirroring the §5 database schema)
-// ---------------------------------------------------------------------------
-
-export type Pace = 'chill' | 'balanced' | 'packed';
-export type BudgetBand = 'low' | 'mid' | 'high';
-
-export interface Trip {
-  id: string;
-  slug: string;
-  destination: string;
-  city_key: string;
-  /** 'YYYY-MM-DD' */
-  start_date: string;
-  /** 'YYYY-MM-DD' */
-  end_date: string;
-  budget_per_person: number;
-}
-
-export interface Preference {
-  member_id: string;
-  trip_id: string;
-  budget_band: BudgetBand | null;
-  pace: Pace | null;
-  interests: string[] | null;
-  dietary: string[] | null;
-  /** The schema stores text, not text[] — may hold several items, so it gets split */
-  must_do: string | null;
-  no_go: string | null;
-}
-
-/** 0 = Sunday … 6 = Saturday */
-export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
-
-export interface TimeRange {
-  /** 'HH:MM' */
-  open: string;
-  /** 'HH:MM'; close <= open means it runs past midnight (+24h). '25:30' also works */
-  close: string;
-}
-
-/** The shape this project assumes for places.opening_hours (jsonb) */
-export interface OpeningHours {
-  /** A missing weekday key, or an empty array, means closed that day */
-  periods?: Partial<Record<Weekday, TimeRange[]>>;
-  /** 'YYYY-MM-DD' → overrides periods, for one-off closures */
-  exceptions?: Record<string, TimeRange[]>;
-  always_open?: boolean;
-}
-
-export interface Place {
-  id: string;
-  city_key: string;
-  name: string;
-  category: string | null;
-  district: string | null;
-  lat: number | null;
-  lng: number | null;
-  /** null or unparsable = missing data → treated as open all day (see §11 fault tolerance) */
-  opening_hours: OpeningHours | null;
-  est_cost_per_person: number | null;
-  avg_duration_min: number | null;
-  indoor: boolean;
-  veg_friendly: boolean;
-}
-
-export interface Block {
-  id: string;
-  /** 1-based day index within the trip */
-  day: number;
-  /** 'HH:MM' or 'HH:MM:SS' (Postgres time columns come back as the latter) */
-  start_time: string;
-  duration_min: number;
-  title: string;
-  subtitle?: string | null;
-  place_id: string | null;
-  cost_per_person: number;
-  locked: boolean;
-}
-
-// ---------------------------------------------------------------------------
-// Output types
-// ---------------------------------------------------------------------------
-
-export interface Constraints {
-  city_key: string;
-  /** 'YYYY-MM-DD' */
-  start_date: string;
-  /** end_date - start_date + 1, never below 1 */
-  days: number;
-  /** Per-person spending ceiling — the lowest across all members */
-  budget_ceiling: number;
-  blocks_per_day: number;
-  /** The resolved pace, useful when writing block.reason */
-  pace: Pace;
-  /** These three keep the trimmed original text (case preserved); matching normalizes internally */
-  required_tags: string[];
-  forced: string[];
-  excluded: string[];
-}
-
-export type ViolationCode =
-  /** place_id is not in the candidate list — stops the LLM inventing places, §7 step 7 */
-  | 'unknown_place'
-  | 'missing_place'
-  | 'over_budget'
-  | 'overlap'
-  | 'outside_opening_hours'
-  | 'closed_that_day'
-  | 'missing_forced'
-  | 'invalid_day'
-  | 'invalid_time';
-
-export interface Violation {
-  code: ViolationCode;
-  /** Human-readable, safe to surface in the UI as-is */
-  message: string;
-  block_id?: string;
-  day?: number;
-  detail?: Record<string, unknown>;
-}
-
-export interface ValidationResult {
-  ok: boolean;
-  violations: Violation[];
-}
+import {
+  CLOCK_RE,
+  ISO_DATE_RE,
+  type Block,
+  type BudgetBand,
+  type Constraints,
+  type Pace,
+  type Place,
+  type Preference,
+  type Trip,
+  type ValidationResult,
+  type Violation,
+  type Weekday,
+} from './schemas';
 
 // ---------------------------------------------------------------------------
 // Tunable constants
@@ -152,7 +40,7 @@ export const BLOCKS_PER_PACE: Readonly<Record<Pace, number>> = {
   packed: 5,
 };
 
-/** budget_band → per-person ceiling (absolute amount, same unit as trips.budget_per_person) */
+/** budgetBand → per-person ceiling (absolute amount, same unit as trips.budgetPerPerson) */
 export const BAND_CEILING: Readonly<Record<BudgetBand, number>> = {
   low: 800,
   mid: 1500,
@@ -162,7 +50,7 @@ export const BAND_CEILING: Readonly<Record<BudgetBand, number>> = {
 /** Which band a member with no stated band counts as */
 const FALLBACK_BAND: BudgetBand = 'mid';
 
-/** must_do / no_go are free text, so split them on the usual separators */
+/** mustDo / noGo are free text, so split them on the usual separators */
 const FREE_TEXT_SEPARATORS = /[,，、;；\n\r]+/;
 
 export interface BuildConstraintsOptions {
@@ -231,7 +119,7 @@ function normalize(value: string): string {
 }
 
 /**
- * Very short match tokens cause collateral damage (a no_go of 'b' would drop every bar).
+ * Very short match tokens cause collateral damage (a noGo of 'b' would drop every bar).
  * Single ASCII characters are ignored; a single non-ASCII character is meaningful in
  * languages that write words as one glyph, so those are kept.
  */
@@ -265,8 +153,6 @@ function toStringArray(value: unknown): string[] {
 
 // --- Time ------------------------------------------------------------------
 
-const CLOCK_RE = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/;
-
 /** 'HH:MM' / 'HH:MM:SS' → minutes past midnight; hours 24–47 express past-midnight. null if unparsable */
 function parseClock(value: unknown): number | null {
   if (typeof value !== 'string') return null;
@@ -285,8 +171,6 @@ function formatClock(totalMinutes: number): string {
 }
 
 // --- Dates (pure UTC arithmetic, immune to the local timezone) --------------
-
-const ISO_DATE_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 function parseISODate(value: unknown): number | null {
   if (typeof value !== 'string') return null;
@@ -325,9 +209,9 @@ function calendarDay(startMs: number, dayIndex: number): CalendarDay {
   return { iso, weekday: dt.getUTCDay() as Weekday };
 }
 
-/** Which calendar day the trip's Nth day falls on; null when start_date is unparsable */
+/** Which calendar day the trip's Nth day falls on; null when startDate is unparsable */
 function dayOf(constraints: Constraints, day: number): CalendarDay | null {
-  const startMs = parseISODate(constraints?.start_date);
+  const startMs = parseISODate(constraints?.startDate);
   if (startMs === null || !Number.isInteger(day)) return null;
   return calendarDay(startMs, day);
 }
@@ -346,9 +230,9 @@ interface Interval {
  *   []   → closed that day
  */
 function rangesForDay(place: Place, when: CalendarDay | null): Interval[] | null {
-  const oh: unknown = place.opening_hours;
+  const oh: unknown = place.openingHours;
   if (!isObject(oh)) return null;
-  if (oh['always_open'] === true) return null;
+  if (oh['alwaysOpen'] === true) return null;
 
   let raw: unknown;
   let matched = false;
@@ -408,9 +292,9 @@ function isOpenDuring(ranges: Interval[] | null, start: number, end: number): bo
 /**
  * Fold a trip and everyone's preferences into one hard constraint set (§7 step 2).
  *
- * - budget_ceiling takes the LOWEST member ceiling, not the average
- * - blocks_per_day follows the sole most-voted pace; a tie (or no votes) falls back to defaultPace
- * - required_tags / forced / excluded are the unions of dietary / must_do / no_go
+ * - budgetCeiling takes the LOWEST member ceiling, not the average
+ * - blocksPerDay follows the sole most-voted pace; a tie (or no votes) falls back to defaultPace
+ * - requiredTags / forced / excluded are the unions of dietary / mustDo / noGo
  */
 export function buildConstraints(
   trip: Trip,
@@ -424,17 +308,17 @@ export function buildConstraints(
 
   const prefs = asArray(preferences).filter((p) => isFilled(p));
 
-  // --- budget_ceiling: whoever has the least room sets it ---
+  // --- budgetCeiling: whoever has the least room sets it ---
   let lowest: number | null = null;
   for (const p of prefs) {
-    const band = isBand(p.budget_band) ? p.budget_band : FALLBACK_BAND;
+    const band = isBand(p.budgetBand) ? p.budgetBand : FALLBACK_BAND;
     const value = bandCeiling[band];
     if (typeof value !== 'number' || !Number.isFinite(value)) continue;
     lowest = lowest === null ? value : Math.min(lowest, value);
   }
   // With zero preferences there is no band to read, so fall back to the trip's per-person budget
-  const budget_ceiling =
-    lowest ?? finiteOr(trip?.budget_per_person, finiteOr(bandCeiling[FALLBACK_BAND], 0));
+  const budgetCeiling =
+    lowest ?? finiteOr(trip?.budgetPerPerson, finiteOr(bandCeiling[FALLBACK_BAND], 0));
 
   // --- pace: sole winner, otherwise defaultPace ---
   const tally: Record<Pace, number> = { chill: 0, balanced: 0, packed: 0 };
@@ -444,7 +328,7 @@ export function buildConstraints(
   const top = Math.max(tally.chill, tally.balanced, tally.packed);
   const leaders = PACES.filter((k) => tally[k] === top);
   const pace: Pace = top > 0 && leaders.length === 1 ? leaders[0]! : defaultPace;
-  const blocks_per_day = finiteOr(
+  const blocksPerDay = finiteOr(
     blocksPerPace[pace],
     finiteOr(BLOCKS_PER_PACE[pace], BLOCKS_PER_PACE.balanced),
   );
@@ -461,30 +345,30 @@ export function buildConstraints(
     return out;
   };
 
-  const required_tags = dedupe(splitAll(prefs.flatMap((p) => toStringArray(p.dietary))));
+  const requiredTags = dedupe(splitAll(prefs.flatMap((p) => toStringArray(p.dietary))));
   const forced = dedupe(
-    splitAll(prefs.map((p) => p.must_do).filter((v): v is string => typeof v === 'string')),
+    splitAll(prefs.map((p) => p.mustDo).filter((v): v is string => typeof v === 'string')),
   );
   const excluded = dedupe(
-    splitAll(prefs.map((p) => p.no_go).filter((v): v is string => typeof v === 'string')),
+    splitAll(prefs.map((p) => p.noGo).filter((v): v is string => typeof v === 'string')),
   );
 
   // --- trip length ---
-  const startMs = parseISODate(trip?.start_date);
-  const endMs = parseISODate(trip?.end_date);
+  const startMs = parseISODate(trip?.startDate);
+  const endMs = parseISODate(trip?.endDate);
   const days =
     startMs !== null && endMs !== null
       ? Math.max(1, Math.round((endMs - startMs) / MS_PER_DAY) + 1)
       : 1;
 
   return {
-    city_key: typeof trip?.city_key === 'string' ? trip.city_key : '',
-    start_date: typeof trip?.start_date === 'string' ? trip.start_date : '',
+    cityKey: typeof trip?.cityKey === 'string' ? trip.cityKey : '',
+    startDate: typeof trip?.startDate === 'string' ? trip.startDate : '',
     days,
-    budget_ceiling,
-    blocks_per_day,
+    budgetCeiling,
+    blocksPerDay,
     pace,
-    required_tags,
+    requiredTags,
     forced,
     excluded,
   };
@@ -513,7 +397,7 @@ function matchesExcluded(
  * Narrow the prefetched places down to what is usable on day N (§7 step 3).
  * Drops, in order: wrong city → matches `excluded` → closed that day.
  *
- * required_tags is deliberately not a hard filter here — diet is a soft preference,
+ * requiredTags is deliberately not a hard filter here — diet is a soft preference,
  * and filtering on it would empty the candidate pool.
  */
 export function filterCandidates<P extends Place>(
@@ -528,7 +412,7 @@ export function filterCandidates<P extends Place>(
 
   return asArray(places).filter((place) => {
     if (!isFilled(place)) return false;
-    if (place.city_key !== constraints.city_key) return false;
+    if (place.cityKey !== constraints.cityKey) return false;
     if (matchesExcluded(place, tokens, fields)) return false;
     const ranges = rangesForDay(place, when);
     if (ranges !== null && ranges.length === 0) return false; // closed that day
@@ -589,7 +473,7 @@ export function validateItinerary(
   const violations: Violation[] = [];
   const list = asArray(blocks).filter((b) => isFilled(b));
   const { ids, places } = indexCandidates(candidates);
-  const ceiling = finiteOr(constraints?.budget_ceiling, Number.POSITIVE_INFINITY);
+  const ceiling = finiteOr(constraints?.budgetCeiling, Number.POSITIVE_INFINITY);
   const days = finiteOr(constraints?.days, Number.POSITIVE_INFINITY);
 
   interface Timed {
@@ -607,32 +491,32 @@ export function validateItinerary(
       violations.push({
         code: 'invalid_day',
         message: `"${label}" has day = ${String(block.day)}, outside the trip range 1–${days}`,
-        block_id: block.id,
+        blockId: block.id,
         detail: { day: block.day, days },
       });
     }
 
-    // --- place_id must come from the candidate list (stops invented places) ---
-    if (typeof block.place_id !== 'string' || !block.place_id) {
+    // --- placeId must come from the candidate list (stops invented places) ---
+    if (typeof block.placeId !== 'string' || !block.placeId) {
       violations.push({
         code: 'missing_place',
-        message: `"${label}" has no place_id`,
-        block_id: block.id,
+        message: `"${label}" has no placeId`,
+        blockId: block.id,
         day: block.day,
       });
-    } else if (!ids.has(block.place_id)) {
+    } else if (!ids.has(block.placeId)) {
       violations.push({
         code: 'unknown_place',
-        message: `"${label}" points at place_id ${block.place_id}, which is not in the candidate list`,
-        block_id: block.id,
+        message: `"${label}" points at placeId ${block.placeId}, which is not in the candidate list`,
+        blockId: block.id,
         day: block.day,
-        detail: { place_id: block.place_id },
+        detail: { placeId: block.placeId },
       });
     }
 
     // --- time has to parse ---
-    const start = parseClock(block.start_time);
-    const duration = block.duration_min;
+    const start = parseClock(block.startTime);
+    const duration = block.durationMin;
     if (
       start === null ||
       typeof duration !== 'number' ||
@@ -643,10 +527,10 @@ export function validateItinerary(
         code: 'invalid_time',
         message:
           `"${label}" has an unreadable time ` +
-          `(start_time = ${String(block.start_time)}, duration_min = ${String(duration)})`,
-        block_id: block.id,
+          `(startTime = ${String(block.startTime)}, durationMin = ${String(duration)})`,
+        blockId: block.id,
         day: block.day,
-        detail: { start_time: block.start_time, duration_min: duration },
+        detail: { startTime: block.startTime, durationMin: duration },
       });
       continue;
     }
@@ -657,8 +541,8 @@ export function validateItinerary(
     else byDay.set(block.day, [timed]);
 
     // --- opening hours (only checkable when the Place object is on hand) ---
-    if (places && typeof block.place_id === 'string') {
-      const place = places.get(block.place_id);
+    if (places && typeof block.placeId === 'string') {
+      const place = places.get(block.placeId);
       if (place) {
         const when = dayOf(constraints, block.day);
         const ranges = rangesForDay(place, when);
@@ -666,9 +550,9 @@ export function validateItinerary(
           violations.push({
             code: 'closed_that_day',
             message: `"${place.name}" is closed all day on day ${block.day}`,
-            block_id: block.id,
+            blockId: block.id,
             day: block.day,
-            detail: { place_id: place.id, date: when?.iso },
+            detail: { placeId: place.id, date: when?.iso },
           });
         } else if (!isOpenDuring(ranges, timed.start, timed.end)) {
           violations.push({
@@ -676,10 +560,10 @@ export function validateItinerary(
             message:
               `"${label}" is scheduled ${formatClock(timed.start)}–${formatClock(timed.end)}, ` +
               `outside the opening hours of "${place.name}"`,
-            block_id: block.id,
+            blockId: block.id,
             day: block.day,
             detail: {
-              place_id: place.id,
+              placeId: place.id,
               block: `${formatClock(timed.start)}-${formatClock(timed.end)}`,
               hours: (ranges ?? []).map((r) => `${formatClock(r.start)}-${formatClock(r.end)}`),
             },
@@ -689,8 +573,8 @@ export function validateItinerary(
     }
   }
 
-  // --- total spend within budget_ceiling ---
-  const total = list.reduce((sum, b) => sum + finiteOr(b.cost_per_person, 0), 0);
+  // --- total spend within budgetCeiling ---
+  const total = list.reduce((sum, b) => sum + finiteOr(b.costPerPerson, 0), 0);
   if (total > ceiling) {
     violations.push({
       code: 'over_budget',
@@ -712,9 +596,9 @@ export function validateItinerary(
           message:
             `Day ${day}: "${a.block.title}" (${formatClock(a.start)}–${formatClock(a.end)}) ` +
             `overlaps "${b.block.title}" (${formatClock(b.start)}–${formatClock(b.end)})`,
-          block_id: a.block.id,
+          blockId: a.block.id,
           day,
-          detail: { with_block_id: b.block.id },
+          detail: { withBlockId: b.block.id },
         });
       }
     }
@@ -722,7 +606,7 @@ export function validateItinerary(
 
   // --- everything in `forced` has to show up ---
   const haystacks = list.map((b) =>
-    haystackOf(b, places && typeof b.place_id === 'string' ? places.get(b.place_id) : undefined),
+    haystackOf(b, places && typeof b.placeId === 'string' ? places.get(b.placeId) : undefined),
   );
   for (const item of constraints?.forced ?? []) {
     const token = normalize(item);
@@ -744,7 +628,7 @@ export function validateItinerary(
 // ---------------------------------------------------------------------------
 
 function costOf(block: Block): number {
-  return finiteOr(block.cost_per_person, 0);
+  return finiteOr(block.costPerPerson, 0);
 }
 
 /** Total cost per person */
@@ -757,7 +641,7 @@ export function totalCost(blocks: readonly Block[]): number {
  *
  * - Locked blocks are never dropped. If everything is locked and the total is still
  *   over, the list comes back untouched and validateItinerary reports over_budget
- * - Ties break on later start_time first, then on later original index — so the
+ * - Ties break on later startTime first, then on later original index — so the
  *   result is deterministic and the tests stay stable
  * - Blocks costing 0 save nothing, so they are left alone
  * - The surviving blocks keep their original order
@@ -768,7 +652,7 @@ export function enforceBudget<B extends Block>(
   opts: EnforceBudgetOptions = {},
 ): B[] {
   const list = asArray(blocks).filter((b) => isFilled(b));
-  const ceiling = finiteOr(constraints?.budget_ceiling, Number.POSITIVE_INFINITY);
+  const ceiling = finiteOr(constraints?.budgetCeiling, Number.POSITIVE_INFINITY);
 
   let total = list.reduce((sum, b) => sum + costOf(b), 0);
   if (total <= ceiling) return [...list];
@@ -788,7 +672,7 @@ export function enforceBudget<B extends Block>(
       index,
       cost: costOf(block),
       forced: isForced(block),
-      start: parseClock(block.start_time) ?? -1,
+      start: parseClock(block.startTime) ?? -1,
     }))
     .filter((x) => x.block.locked !== true && x.cost > 0)
     .sort(

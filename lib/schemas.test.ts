@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { buildConstraints } from './constraints';
 import {
   BlockSchema,
+  DisruptionSchema,
+  ReplanDiffSchema,
   ConstraintsSchema,
   ItineraryDraftSchema,
   MemberSchema,
@@ -314,5 +316,81 @@ describe('ReplanOpsSchema', () => {
     const first = parsed.ops[0];
     // The discriminated union is what lets replan.ts read `.to` without a cast
     expect(first?.op === 'move' ? first.to.startTime : null).toBe('09:30');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Re-plan (§8)
+// ---------------------------------------------------------------------------
+
+describe('DisruptionSchema', () => {
+  it('types each payload off the discriminator', () => {
+    expect(DisruptionSchema.parse({ type: 'delay', day: 2, payload: { hours: 2 } })).toMatchObject({
+      payload: { hours: 2 },
+    });
+    expect(
+      DisruptionSchema.parse({ type: 'closed', day: 1, payload: { placeId: 'osaka-castle' } }),
+    ).toMatchObject({ payload: { placeId: 'osaka-castle' } });
+    expect(DisruptionSchema.parse({ type: 'weather', day: 3, payload: null }).type).toBe('weather');
+    expect(DisruptionSchema.parse({ type: 'overbudget', day: 1, payload: null }).type).toBe('overbudget');
+  });
+
+  it('rejects a payload belonging to a different type', () => {
+    // hours is the delay payload; closed needs a placeId
+    expect(DisruptionSchema.safeParse({ type: 'closed', day: 1, payload: { hours: 2 } }).success).toBe(
+      false,
+    );
+    expect(DisruptionSchema.safeParse({ type: 'delay', day: 1, payload: {} }).success).toBe(false);
+  });
+
+  it('rejects a type nobody defined and a day below 1', () => {
+    expect(DisruptionSchema.safeParse({ type: 'strike', day: 1, payload: null }).success).toBe(false);
+    expect(
+      DisruptionSchema.safeParse({ type: 'delay', day: 0, payload: { hours: 1 } }).success,
+    ).toBe(false);
+  });
+});
+
+describe('ReplanDiffSchema', () => {
+  it('accepts what replan() returns for replan_diffs', () => {
+    const parsed = ReplanDiffSchema.parse({
+      status: 'pending',
+      budgetDelta: -55,
+      violations: [],
+      ops: [
+        {
+          id: 'op-01',
+          costDelta: -55,
+          violations: [],
+          op: { op: 'remove', blockId: 'b1', note: 'no longer fits' },
+        },
+      ],
+    });
+    expect(parsed.ops[0]?.costDelta).toBe(-55);
+    expect(parsed.status).toBe('pending');
+  });
+
+  it('accepts an empty diff — a failed re-plan is still a diff', () => {
+    expect(
+      ReplanDiffSchema.safeParse({ ops: [], budgetDelta: 0, status: 'pending', violations: [] })
+        .success,
+    ).toBe(true);
+  });
+
+  it('rejects a status outside the four §5 allows', () => {
+    expect(
+      ReplanDiffSchema.safeParse({ ops: [], budgetDelta: 0, status: 'maybe', violations: [] }).success,
+    ).toBe(false);
+  });
+
+  it('requires a costDelta on every op — the frontend sums them for a partial accept', () => {
+    expect(
+      ReplanDiffSchema.safeParse({
+        status: 'pending',
+        budgetDelta: 0,
+        violations: [],
+        ops: [{ id: 'op-01', violations: [], op: { op: 'keep', blockId: 'b1', note: 'n' } }],
+      }).success,
+    ).toBe(false);
   });
 });

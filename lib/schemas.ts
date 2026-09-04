@@ -103,6 +103,13 @@ export const TripSchema = z.object({
   startDate: IsoDateSchema,
   endDate: IsoDateSchema,
   budgetPerPerson: z.number(),
+  /**
+   * IANA zone, e.g. 'Asia/Tokyo'. Only lib/time.ts reads it, at the route-handler
+   * boundary, to turn a real timestamp into the { day, time } the engines use.
+   * Optional until the trips table has the column; toTripLocal falls back to a
+   * cityKey lookup.
+   */
+  timezone: z.string().nullish(),
   captainId: z.string().nullish(),
   createdAt: z.string().nullish(),
 });
@@ -225,6 +232,18 @@ export const ViolationCodeSchema = z.enum([
   'invalid_time',
   /** the locked blocks alone are over the ceiling — enforceBudget cannot fix it */
   'locked_over_budget',
+  /** re-plan: a move landed outside the window the rule layer computed */
+  'move_out_of_window',
+  /** re-plan: two or more ops targeted the same block, so none of them can be trusted */
+  'conflicting_ops',
+  /** re-plan: the diff cuts all it can and the trip is still over the ceiling */
+  'still_over_budget',
+  /** re-plan: an op targeted a block that is locked or already in the past */
+  'immovable_block',
+  /** re-plan: an op targeted a block id that is not in this itinerary */
+  'unknown_block',
+  /** re-plan: no usable set of changes could be produced at all */
+  'replan_failed',
 ]);
 export type ViolationCode = z.infer<typeof ViolationCodeSchema>;
 
@@ -361,3 +380,78 @@ export const SeedItinerarySchema = z.object({
   blocks: z.array(BlockSchema),
 });
 export type SeedItinerary = z.infer<typeof SeedItinerarySchema>;
+
+// ---------------------------------------------------------------------------
+// Re-plan input and output (§8)
+// ---------------------------------------------------------------------------
+
+/**
+ * A disruption, as §5's `disruptions` table stores it. Discriminated on `type`
+ * so each payload is typed rather than being a bag of unknowns.
+ */
+export const DisruptionSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('delay'),
+    day: z.number().int().min(1),
+    /** how much later the day now starts */
+    payload: z.object({ hours: z.number(), note: z.string().nullish() }),
+  }),
+  z.object({
+    type: z.literal('weather'),
+    day: z.number().int().min(1),
+    payload: z.object({ condition: z.string().nullish() }).nullish(),
+  }),
+  z.object({
+    type: z.literal('closed'),
+    day: z.number().int().min(1),
+    payload: z.object({ placeId: z.string().min(1), note: z.string().nullish() }),
+  }),
+  z.object({
+    type: z.literal('overbudget'),
+    day: z.number().int().min(1),
+    /** target defaults to constraints.budgetCeiling */
+    payload: z.object({ target: z.number().nullish() }).nullish(),
+  }),
+]);
+export type Disruption = z.infer<typeof DisruptionSchema>;
+export type DisruptionType = Disruption['type'];
+
+export const ReplanStatusSchema = z.enum(['pending', 'accepted', 'partial', 'rejected']);
+export type ReplanStatus = z.infer<typeof ReplanStatusSchema>;
+
+/**
+ * One op, wrapped with what the server worked out about it.
+ *
+ * costDelta is on the wrapper and not on ReplanOpSchema on purpose: the model
+ * returns intent, the server prices it. The frontend sums the costDeltas of the
+ * boxes it has ticked to preview a partial acceptance without another round trip.
+ */
+export const DiffOpSchema = z.object({
+  /** stable within one diff, so the frontend can post back a subset */
+  id: z.string(),
+  op: ReplanOpSchema,
+  /** what accepting this one op does to the per-person total: keep 0, move 0, remove -cost, add +cost */
+  costDelta: z.number(),
+  /** anything questionable about this op that was not bad enough to discard it */
+  violations: z.array(ViolationSchema),
+});
+export type DiffOp = z.infer<typeof DiffOpSchema>;
+
+/** The window the rule layer leaves open for re-scheduling. */
+export const TimeWindowSchema = z.object({
+  /** the day it applies to, or null when the scope spans days (overbudget) */
+  day: z.number().nullable(),
+  earliestStart: ClockSchema,
+  latestEnd: ClockSchema,
+});
+export type TimeWindow = z.infer<typeof TimeWindowSchema>;
+
+/** What lands in replan_diffs. §8 step 8: computed and returned, never applied. */
+export const ReplanDiffSchema = z.object({
+  ops: z.array(DiffOpSchema),
+  /** the whole diff applied, per person; the frontend recomputes for a subset */
+  budgetDelta: z.number(),
+  status: ReplanStatusSchema,
+  violations: z.array(ViolationSchema),
+});
+export type ReplanDiff = z.infer<typeof ReplanDiffSchema>;

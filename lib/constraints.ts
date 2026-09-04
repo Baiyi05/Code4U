@@ -40,21 +40,39 @@ export const BLOCKS_PER_PACE: Readonly<Record<Pace, number>> = {
   packed: 5,
 };
 
-/** budgetBand → per-person ceiling (absolute amount, same unit as trips.budgetPerPerson) */
-export const BAND_CEILING: Readonly<Record<BudgetBand, number>> = {
-  low: 800,
-  mid: 1500,
-  high: 2500,
+/**
+ * budgetBand → the share of the trip's per-person budget that member is willing to spend.
+ *
+ * Ratios rather than absolute amounts, so the bands travel with the trip instead of
+ * being pinned to one currency. 'high' is 1.0, not unlimited: the highest band means
+ * "I'll go with the trip budget", so trip.budgetPerPerson is always the hard cap.
+ */
+export const BAND_RATIO: Readonly<Record<BudgetBand, number>> = {
+  low: 0.85,
+  mid: 0.95,
+  high: 1.0,
 };
 
 /** Which band a member with no stated band counts as */
 const FALLBACK_BAND: BudgetBand = 'mid';
 
+/** What one member's band lets them spend on a trip of this budget. */
+export function bandCeiling(
+  band: BudgetBand | null | undefined,
+  budgetPerPerson: number,
+  ratios: Record<BudgetBand, number> = BAND_RATIO,
+): number {
+  const key = isBand(band) ? band : FALLBACK_BAND;
+  const ratio = finiteOr(ratios[key], finiteOr(BAND_RATIO[key], 1));
+  return Math.round(finiteOr(budgetPerPerson, 0) * ratio);
+}
+
 /** mustDo / noGo are free text, so split them on the usual separators */
 const FREE_TEXT_SEPARATORS = /[,，、;；\n\r]+/;
 
 export interface BuildConstraintsOptions {
-  bandCeiling?: Record<BudgetBand, number>;
+  /** Overrides BAND_RATIO — shares of trip.budgetPerPerson, not absolute amounts */
+  bandRatio?: Record<BudgetBand, number>;
   blocksPerPace?: Record<Pace, number>;
   /** Used when the pace vote ties or nobody stated one; defaults to 'balanced' */
   defaultPace?: Pace;
@@ -301,24 +319,29 @@ export function buildConstraints(
   preferences: readonly Preference[] = [],
   opts: BuildConstraintsOptions = {},
 ): Constraints {
-  const bandCeiling = opts.bandCeiling ?? BAND_CEILING;
+  const ratios = opts.bandRatio ?? BAND_RATIO;
   const blocksPerPace = opts.blocksPerPace ?? BLOCKS_PER_PACE;
   const defaultPace = isPace(opts.defaultPace) ? opts.defaultPace : 'balanced';
   const split = opts.splitFreeText ?? defaultSplitFreeText;
 
   const prefs = asArray(preferences).filter((p) => isFilled(p));
 
-  // --- budgetCeiling: whoever has the least room sets it ---
-  let lowest: number | null = null;
+  // --- budgetCeiling: whoever has the least room sets it, and the trip caps everyone ---
+  //
+  //   budgetCeiling = min(trip.budgetPerPerson, ...members.map(bandCeiling))
+  //
+  // The trip budget is in the minimum on purpose. Even with every member on the
+  // top band the ceiling lands exactly on trip.budgetPerPerson rather than running
+  // off to infinity. With no preferences at all the minimum is the trip budget alone.
+  //
+  // A trip with no readable budget gives 0 — nothing is affordable, and the
+  // violations say so loudly. trips.budget_per_person is `not null`, so this is
+  // unreachable in practice; better visible than silently unlimited.
+  const tripBudget = finiteOr(trip?.budgetPerPerson, 0);
+  let budgetCeiling = tripBudget;
   for (const p of prefs) {
-    const band = isBand(p.budgetBand) ? p.budgetBand : FALLBACK_BAND;
-    const value = bandCeiling[band];
-    if (typeof value !== 'number' || !Number.isFinite(value)) continue;
-    lowest = lowest === null ? value : Math.min(lowest, value);
+    budgetCeiling = Math.min(budgetCeiling, bandCeiling(p.budgetBand, tripBudget, ratios));
   }
-  // With zero preferences there is no band to read, so fall back to the trip's per-person budget
-  const budgetCeiling =
-    lowest ?? finiteOr(trip?.budgetPerPerson, finiteOr(bandCeiling[FALLBACK_BAND], 0));
 
   // --- pace: sole winner, otherwise defaultPace ---
   const tally: Record<Pace, number> = { chill: 0, balanced: 0, packed: 0 };
@@ -580,6 +603,24 @@ export function validateItinerary(
       code: 'over_budget',
       message: `Total cost per person is ${total}, over the ceiling of ${ceiling}`,
       detail: { total, ceiling, over: total - ceiling },
+    });
+  }
+
+  // --- locked blocks alone busting the ceiling is a different problem ---
+  // enforceBudget cannot fix it, because it never cuts a locked block. Saying so
+  // separately lets the caller tell the user to unlock something instead of
+  // silently returning an itinerary that is still over.
+  const lockedTotal = list.reduce(
+    (sum, b) => (b.locked === true ? sum + finiteOr(b.costPerPerson, 0) : sum),
+    0,
+  );
+  if (lockedTotal > ceiling) {
+    violations.push({
+      code: 'locked_over_budget',
+      message:
+        `Locked blocks alone cost ${lockedTotal} per person, over the ceiling of ${ceiling}. ` +
+        `Nothing can be cut automatically — something has to be unlocked.`,
+      detail: { lockedTotal, ceiling, over: lockedTotal - ceiling },
     });
   }
 

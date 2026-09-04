@@ -1,0 +1,458 @@
+{
+  "trip": {
+    "id": "seed-trip-osaka",
+    "slug": "OSK-SEED",
+    "destination": "Osaka, Japan",
+    "cityKey": "osaka",
+    "startDate": "2026-09-07",
+    "endDate": "2026-09-11",
+    "budgetPerPerson": 3000,
+    "captainId": "seed-m1"
+  },
+  "members": [
+    {
+      "id": "seed-m1",
+      "tripId": "seed-trip-osaka",
+      "displayName": "Captain",
+      "isCaptain": true
+    },
+    {
+      "id": "seed-m2",
+      "tripId": "seed-trip-osaka",
+      "displayName": "Member 2",
+      "isCaptain": false
+    },
+    {
+      "id": "seed-m3",
+      "tripId": "seed-trip-osaka",
+      "displayName": "Member 3",
+      "isCaptain": false
+    },
+    {
+      "id": "seed-m4",
+      "tripId": "seed-trip-osaka",
+      "displayName": "Member 4",
+      "isCaptain": false
+    }
+  ],
+  "preferences": [
+    {
+      "memberId": "seed-m1",
+      "tripId": "seed-trip-osaka",
+      "budgetBand": "high",
+      "pace": "balanced",
+      "interests": [
+        "history",
+        "castles"
+      ],
+      "dietary": null,
+      "mustDo": "Osaka Castle",
+      "noGo": "nightclub"
+    },
+    {
+      "memberId": "seed-m2",
+      "tripId": "seed-trip-osaka",
+      "budgetBand": "mid",
+      "pace": "balanced",
+      "interests": [
+        "street food",
+        "nightlife"
+      ],
+      "dietary": [
+        "no pork"
+      ],
+      "mustDo": "Dotonbori",
+      "noGo": null
+    },
+    {
+      "memberId": "seed-m3",
+      "tripId": "seed-trip-osaka",
+      "budgetBand": "low",
+      "pace": "chill",
+      "interests": [
+        "parks",
+        "museums"
+      ],
+      "dietary": [
+        "vegetarian"
+      ],
+      "mustDo": null,
+      "noGo": "karaoke"
+    },
+    {
+      "memberId": "seed-m4",
+      "tripId": "seed-trip-osaka",
+      "budgetBand": "mid",
+      "pace": "packed",
+      "interests": [
+        "theme parks",
+        "views"
+      ],
+      "dietary": null,
+      "mustDo": "Universal Studios",
+      "noGo": null
+    }
+  ],
+  "blocks": [
+    {
+      "id": "seed-b01",
+      "tripId": "seed-trip-osaka",
+      "day": 1,
+      "startTime": "09:30",
+      "durationMin": 120,
+      "title": "Osaka Castle and Nishinomaru Garden",
+      "subtitle": null,
+      "placeId": "osaka-castle",
+      "costPerPerson": 25,
+      "locked": false,
+      "reason": {
+        "budget": "RM25 per person.",
+        "constraint": "Opens at 09:00, so the first slot beats the queues."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    },
+    {
+      "id": "seed-b02",
+      "tripId": "seed-trip-osaka",
+      "day": 1,
+      "startTime": "12:00",
+      "durationMin": 60,
+      "title": "Lunch at Miraiza Osaka-jo",
+      "subtitle": null,
+      "placeId": "miraiza-osakajo",
+      "costPerPerson": 35,
+      "locked": false,
+      "reason": {
+        "budget": "RM35 per person.",
+        "constraint": "Inside the castle grounds, so no transit is spent on lunch."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    },
+    {
+      "id": "seed-b03",
+      "tripId": "seed-trip-osaka",
+      "day": 1,
+      "startTime": "14:00",
+      "durationMin": 120,
+      "title": "Osaka Museum of History",
+      "subtitle": null,
+      "placeId": "osaka-museum-history",
+      "costPerPerson": 20,
+      "locked": false,
+      "reason": {
+        "budget": "RM20 per person.",
+        "constraint": "Two minutes from the castle and open on Mondays."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    },
+    {
+      "id": "seed-b04",
+      "tripId": "seed-trip-osaka",
+      "day": 1,
+      "startTime": "18:00",
+      "durationMin": 120,
+      "title": "Dinner in Dotonbori",
+      "subtitle": null,
+      "placeId": "dotonbori",
+      "costPerPerson": 60,
+      "locked": false,
+      "reason": {
+        "budget": "RM60 per person.",
+        "constraint": "The evening the whole group asked for."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    },
+    {
+      "id": "seed-b05",
+      "tripId": "seed-trip-osaka",
+      "day": 2,
+      "startTime": "09:30",
+      "durationMin": 150,
+      "title": "Osaka Aquarium Kaiyukan",
+      "subtitle": null,
+      "placeId": "kaiyukan",
+      "costPerPerson": 75,
+      "locked": false,
+      "reason": {
+        "budget": "RM75 per person.",
+        "constraint": "Doors open at 09:30 and the bay is quietest early."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    },
+    {
+      "id": "seed-b06",
+      "tripId": "seed-trip-osaka",
+      "day": 2,
+      "startTime": "12:30",
+      "durationMin": 60,
+      "title": "Lunch at Tempozan Marketplace",
+      "subtitle": null,
+      "placeId": "tempozan-marketplace",
+      "costPerPerson": 40,
+      "locked": false,
+      "reason": {
+        "budget": "RM40 per person.",
+        "constraint": "Next door to the aquarium."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    },
+    {
+      "id": "seed-b07",
+      "tripId": "seed-trip-osaka",
+      "day": 2,
+      "startTime": "14:30",
+      "durationMin": 60,
+      "title": "Tempozan Giant Ferris Wheel",
+      "subtitle": null,
+      "placeId": "tempozan-ferris-wheel",
+      "costPerPerson": 25,
+      "locked": false,
+      "reason": {
+        "budget": "RM25 per person.",
+        "constraint": "Twenty minutes, and it is right there."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    },
+    {
+      "id": "seed-b08",
+      "tripId": "seed-trip-osaka",
+      "day": 2,
+      "startTime": "18:00",
+      "durationMin": 120,
+      "title": "Dinner at Namba Sennichimae",
+      "subtitle": null,
+      "placeId": "namba-sennichimae",
+      "costPerPerson": 70,
+      "locked": false,
+      "reason": {
+        "budget": "RM70 per person.",
+        "constraint": "Late-opening street food, no reservation needed."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    },
+    {
+      "id": "seed-b09",
+      "tripId": "seed-trip-osaka",
+      "day": 3,
+      "startTime": "09:00",
+      "durationMin": 300,
+      "title": "Universal Studios Japan",
+      "subtitle": null,
+      "placeId": "usj",
+      "costPerPerson": 260,
+      "locked": false,
+      "reason": {
+        "budget": "RM260 per person.",
+        "constraint": "The one big-ticket day; the park opens at 09:00."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    },
+    {
+      "id": "seed-b10",
+      "tripId": "seed-trip-osaka",
+      "day": 3,
+      "startTime": "14:30",
+      "durationMin": 60,
+      "title": "Lunch at Universal CityWalk",
+      "subtitle": null,
+      "placeId": "universal-citywalk",
+      "costPerPerson": 45,
+      "locked": false,
+      "reason": {
+        "budget": "RM45 per person.",
+        "constraint": "Re-entry to the park is free, so lunch happens outside it."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    },
+    {
+      "id": "seed-b11",
+      "tripId": "seed-trip-osaka",
+      "day": 3,
+      "startTime": "16:00",
+      "durationMin": 180,
+      "title": "Universal Studios Japan, evening run",
+      "subtitle": null,
+      "placeId": "usj",
+      "costPerPerson": 0,
+      "locked": false,
+      "reason": {
+        "budget": "RM0 per person.",
+        "constraint": "Same ticket, shorter queues after 16:00."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    },
+    {
+      "id": "seed-b12",
+      "tripId": "seed-trip-osaka",
+      "day": 3,
+      "startTime": "20:00",
+      "durationMin": 90,
+      "title": "Late dinner at Umeda Food Hall",
+      "subtitle": null,
+      "placeId": "umeda-food-hall",
+      "costPerPerson": 55,
+      "locked": false,
+      "reason": {
+        "budget": "RM55 per person.",
+        "constraint": "Open until 23:00, which the park exit time needs."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    },
+    {
+      "id": "seed-b13",
+      "tripId": "seed-trip-osaka",
+      "day": 4,
+      "startTime": "09:30",
+      "durationMin": 90,
+      "title": "Umeda Sky Building",
+      "subtitle": null,
+      "placeId": "umeda-sky-building",
+      "costPerPerson": 45,
+      "locked": false,
+      "reason": {
+        "budget": "RM45 per person.",
+        "constraint": "Clear morning light over the city."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    },
+    {
+      "id": "seed-b14",
+      "tripId": "seed-trip-osaka",
+      "day": 4,
+      "startTime": "11:30",
+      "durationMin": 90,
+      "title": "Nakanoshima Park riverside walk",
+      "subtitle": null,
+      "placeId": "nakanoshima-park",
+      "costPerPerson": 0,
+      "locked": false,
+      "reason": {
+        "budget": "RM0 per person.",
+        "constraint": "Free, and it fills the gap before the museum opens."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    },
+    {
+      "id": "seed-b15",
+      "tripId": "seed-trip-osaka",
+      "day": 4,
+      "startTime": "14:00",
+      "durationMin": 120,
+      "title": "National Museum of Art, Osaka",
+      "subtitle": null,
+      "placeId": "nmao",
+      "costPerPerson": 30,
+      "locked": false,
+      "reason": {
+        "budget": "RM30 per person.",
+        "constraint": "Closed Mondays, so it sits on day 4."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    },
+    {
+      "id": "seed-b16",
+      "tripId": "seed-trip-osaka",
+      "day": 4,
+      "startTime": "18:00",
+      "durationMin": 90,
+      "title": "Dinner at Tenjinbashisuji Shotengai",
+      "subtitle": null,
+      "placeId": "tenjinbashisuji",
+      "costPerPerson": 50,
+      "locked": false,
+      "reason": {
+        "budget": "RM50 per person.",
+        "constraint": "The longest shopping street in Japan, and cheap."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    },
+    {
+      "id": "seed-b17",
+      "tripId": "seed-trip-osaka",
+      "day": 5,
+      "startTime": "09:30",
+      "durationMin": 90,
+      "title": "Shitennoji Temple",
+      "subtitle": null,
+      "placeId": "shitennoji",
+      "costPerPerson": 15,
+      "locked": false,
+      "reason": {
+        "budget": "RM15 per person.",
+        "constraint": "Closes at 16:30, so it takes the morning."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    },
+    {
+      "id": "seed-b18",
+      "tripId": "seed-trip-osaka",
+      "day": 5,
+      "startTime": "11:30",
+      "durationMin": 90,
+      "title": "Tennoji Park and Keitakuen Garden",
+      "subtitle": null,
+      "placeId": "tennoji-park",
+      "costPerPerson": 10,
+      "locked": false,
+      "reason": {
+        "budget": "RM10 per person.",
+        "constraint": "A ten-minute walk from the temple."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    },
+    {
+      "id": "seed-b19",
+      "tripId": "seed-trip-osaka",
+      "day": 5,
+      "startTime": "14:00",
+      "durationMin": 90,
+      "title": "Abeno Harukas observatory",
+      "subtitle": null,
+      "placeId": "abeno-harukas",
+      "costPerPerson": 55,
+      "locked": false,
+      "reason": {
+        "budget": "RM55 per person.",
+        "constraint": "Tallest building in Japan, and it is above the station."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    },
+    {
+      "id": "seed-b20",
+      "tripId": "seed-trip-osaka",
+      "day": 5,
+      "startTime": "18:00",
+      "durationMin": 120,
+      "title": "Farewell dinner in Dotonbori",
+      "subtitle": null,
+      "placeId": "dotonbori",
+      "costPerPerson": 90,
+      "locked": false,
+      "reason": {
+        "budget": "RM90 per person.",
+        "constraint": "Ends where the trip started."
+      },
+      "sourceCitation": null,
+      "createdBy": "seed"
+    }
+  ]
+}

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  BAND_CEILING,
+  bandCeiling,
+  BAND_RATIO,
   buildConstraints,
   enforceBudget,
   filterCandidates,
@@ -99,6 +100,11 @@ function ids(blocks: readonly Block[]): string[] {
 // ---------------------------------------------------------------------------
 
 describe('buildConstraints — budgetCeiling', () => {
+  // TRIP.budgetPerPerson is 1200, so the three bands land on 1020 / 1140 / 1200
+  const LOW = bandCeiling('low', TRIP.budgetPerPerson);
+  const MID = bandCeiling('mid', TRIP.budgetPerPerson);
+  const HIGH = bandCeiling('high', TRIP.budgetPerPerson);
+
   it('takes the lowest member ceiling, not the average', () => {
     const c = buildConstraints(TRIP, [
       makePref({ budgetBand: 'low' }),
@@ -106,12 +112,53 @@ describe('buildConstraints — budgetCeiling', () => {
       makePref({ budgetBand: 'high' }),
     ]);
 
-    expect(c.budgetCeiling).toBe(BAND_CEILING.low);
+    expect(c.budgetCeiling).toBe(LOW);
 
     // Pin down "not the average" explicitly — spec §7 calls this rule out by name
-    const average = (BAND_CEILING.low + BAND_CEILING.mid + BAND_CEILING.high) / 3;
+    const average = (LOW + MID + HIGH) / 3;
     expect(c.budgetCeiling).not.toBe(average);
     expect(c.budgetCeiling).toBeLessThan(average);
+  });
+
+  it('scales the bands off trip.budgetPerPerson rather than fixed amounts', () => {
+    const cheap = { ...TRIP, budgetPerPerson: 800 };
+    expect(buildConstraints(cheap, [makePref({ budgetBand: 'low' })]).budgetCeiling).toBe(
+      Math.round(800 * BAND_RATIO.low),
+    );
+    expect(buildConstraints(cheap, [makePref({ budgetBand: 'mid' })]).budgetCeiling).toBe(
+      Math.round(800 * BAND_RATIO.mid),
+    );
+    expect(buildConstraints(cheap, [makePref({ budgetBand: 'high' })]).budgetCeiling).toBe(800);
+
+    // The same bands on a richer trip give bigger ceilings — nothing is hardcoded
+    expect(buildConstraints(cheap, [makePref({ budgetBand: 'low' })]).budgetCeiling).toBeLessThan(
+      buildConstraints(TRIP, [makePref({ budgetBand: 'low' })]).budgetCeiling,
+    );
+  });
+
+  it('caps at trip.budgetPerPerson when everyone picks the top band — not infinity', () => {
+    const c = buildConstraints(TRIP, [
+      makePref({ budgetBand: 'high' }),
+      makePref({ budgetBand: 'high' }),
+      makePref({ budgetBand: 'high' }),
+      makePref({ budgetBand: 'high' }),
+    ]);
+    expect(c.budgetCeiling).toBe(TRIP.budgetPerPerson);
+    expect(Number.isFinite(c.budgetCeiling)).toBe(true);
+  });
+
+  it('lets one low member set the ceiling regardless of everyone else', () => {
+    const withLow = buildConstraints(TRIP, [
+      makePref({ budgetBand: 'high' }),
+      makePref({ budgetBand: 'high' }),
+      makePref({ budgetBand: 'low' }),
+      makePref({ budgetBand: 'mid' }),
+    ]);
+    expect(withLow.budgetCeiling).toBe(Math.round(TRIP.budgetPerPerson * BAND_RATIO.low));
+    // The other three bands moved the answer not at all
+    expect(withLow.budgetCeiling).toBe(
+      buildConstraints(TRIP, [makePref({ budgetBand: 'low' })]).budgetCeiling,
+    );
   });
 
   it('does not depend on member order', () => {
@@ -123,17 +170,15 @@ describe('buildConstraints — budgetCeiling', () => {
   });
 
   it('counts a missing or invalid band as mid', () => {
-    expect(buildConstraints(TRIP, [makePref({ budgetBand: null })]).budgetCeiling).toBe(
-      BAND_CEILING.mid,
-    );
+    expect(buildConstraints(TRIP, [makePref({ budgetBand: null })]).budgetCeiling).toBe(MID);
     expect(
       buildConstraints(TRIP, [makePref({ budgetBand: 'luxury' as never })]).budgetCeiling,
-    ).toBe(BAND_CEILING.mid);
+    ).toBe(MID);
     // and it still takes part in the minimum
     expect(
       buildConstraints(TRIP, [makePref({ budgetBand: null }), makePref({ budgetBand: 'low' })])
         .budgetCeiling,
-    ).toBe(BAND_CEILING.low);
+    ).toBe(LOW);
   });
 
   it('falls back to trip.budgetPerPerson when there are no preferences at all', () => {
@@ -141,9 +186,9 @@ describe('buildConstraints — budgetCeiling', () => {
     expect(buildConstraints(TRIP).budgetCeiling).toBe(TRIP.budgetPerPerson);
   });
 
-  it('lets the band → amount mapping be overridden', () => {
+  it('lets the band ratios be overridden', () => {
     const c = buildConstraints(TRIP, [makePref({ budgetBand: 'low' })], {
-      bandCeiling: { low: 300, mid: 600, high: 900 },
+      bandRatio: { low: 0.25, mid: 0.5, high: 1 },
     });
     expect(c.budgetCeiling).toBe(300);
   });
@@ -816,6 +861,47 @@ describe('enforceBudget', () => {
   });
 });
 
+describe('validateItinerary — locked_over_budget', () => {
+  it('flags locked blocks that bust the ceiling on their own', () => {
+    const c = constraintsWith({ budgetCeiling: 300 });
+    const blocks = [
+      makeBlock({ id: 'a', day: 1, startTime: '09:00', costPerPerson: 250, locked: true }),
+      makeBlock({ id: 'b', day: 1, startTime: '13:00', costPerPerson: 200, locked: true }),
+    ];
+    const found = codes(validateItinerary(blocks, c, ['p1']).violations);
+    expect(found).toContain('locked_over_budget');
+    // over_budget still fires too — one says "you are over", the other says "and you
+    // cannot fix it by cutting"
+    expect(found).toContain('over_budget');
+  });
+
+  it('stays quiet when the locked blocks fit and only the free ones push it over', () => {
+    const c = constraintsWith({ budgetCeiling: 300 });
+    const blocks = [
+      makeBlock({ id: 'a', day: 1, startTime: '09:00', costPerPerson: 200, locked: true }),
+      makeBlock({ id: 'b', day: 1, startTime: '13:00', costPerPerson: 250, locked: false }),
+    ];
+    const found = codes(validateItinerary(blocks, c, ['p1']).violations);
+    expect(found).toContain('over_budget');
+    expect(found).not.toContain('locked_over_budget');
+  });
+
+  it('is what enforceBudget cannot fix — the pair are consistent', () => {
+    const c = constraintsWith({ budgetCeiling: 300 });
+    const blocks = [
+      makeBlock({ id: 'a', day: 1, startTime: '09:00', costPerPerson: 250, locked: true }),
+      makeBlock({ id: 'b', day: 1, startTime: '13:00', costPerPerson: 200, locked: true }),
+    ];
+    // enforceBudget returns without looping and without cutting anything...
+    const trimmed = enforceBudget(blocks, c);
+    expect(ids(trimmed)).toEqual(['a', 'b']);
+    // ...and validateItinerary explains why the result is still over
+    expect(codes(validateItinerary(trimmed, c, ['p1']).violations)).toContain(
+      'locked_over_budget',
+    );
+  });
+});
+
 // ---------------------------------------------------------------------------
 // End to end: the full post-generation check from §7 step 7
 // ---------------------------------------------------------------------------
@@ -823,7 +909,7 @@ describe('enforceBudget', () => {
 describe('enforceBudget feeding validateItinerary', () => {
   it('clears over_budget once the trimming has run', () => {
     const c = buildConstraints(TRIP, [
-      makePref({ budgetBand: 'low' }), // ceiling = 800
+      makePref({ budgetBand: 'low' }), // sets the ceiling for everyone
       makePref({ budgetBand: 'high' }),
     ]);
     const places = [makePlace({ id: 'p1', openingHours: null })];
@@ -833,7 +919,7 @@ describe('enforceBudget feeding validateItinerary', () => {
       makeBlock({ id: 'c', day: 2, startTime: '09:00', costPerPerson: 300 }),
     ];
 
-    expect(c.budgetCeiling).toBe(800);
+    expect(c.budgetCeiling).toBe(bandCeiling('low', TRIP.budgetPerPerson));
     expect(codes(validateItinerary(blocks, c, places).violations)).toContain('over_budget');
 
     const trimmed = enforceBudget(blocks, c);

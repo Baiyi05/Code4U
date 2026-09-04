@@ -185,7 +185,16 @@ describe('ValidationResultSchema', () => {
     expect(parsed.violations).toHaveLength(2);
   });
 
-  it('rejects a code that is not one of the nine', () => {
+  it('accepts locked_over_budget, the code enforceBudget cannot resolve', () => {
+    expect(
+      ValidationResultSchema.safeParse({
+        ok: false,
+        violations: [{ code: 'locked_over_budget', message: 'unlock something' }],
+      }).success,
+    ).toBe(true);
+  });
+
+  it('rejects a code that is not in the set', () => {
     expect(
       ValidationResultSchema.safeParse({ ok: false, violations: [{ code: 'oops', message: 'x' }] })
         .success,

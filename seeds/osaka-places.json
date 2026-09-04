@@ -1,0 +1,1570 @@
+[
+  {
+    "id": "osaka-castle",
+    "cityKey": "osaka",
+    "name": "Osaka Castle",
+    "category": "sight",
+    "district": "chuo",
+    "lat": 34.6873,
+    "lng": 135.5259,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 25,
+    "avgDurationMin": 120,
+    "indoor": true,
+    "vegFriendly": false
+  },
+  {
+    "id": "miraiza-osakajo",
+    "cityKey": "osaka",
+    "name": "Miraiza Osaka-jo",
+    "category": "food",
+    "district": "chuo",
+    "lat": 34.6863,
+    "lng": 135.5266,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "09:00",
+            "close": "22:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "09:00",
+            "close": "22:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "09:00",
+            "close": "22:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "09:00",
+            "close": "22:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "09:00",
+            "close": "22:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "09:00",
+            "close": "22:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "09:00",
+            "close": "22:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 35,
+    "avgDurationMin": 60,
+    "indoor": true,
+    "vegFriendly": true
+  },
+  {
+    "id": "osaka-museum-history",
+    "cityKey": "osaka",
+    "name": "Osaka Museum of History",
+    "category": "museum",
+    "district": "chuo",
+    "lat": 34.6829,
+    "lng": 135.52,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "09:30",
+            "close": "17:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "09:30",
+            "close": "17:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "09:30",
+            "close": "17:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "09:30",
+            "close": "17:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "09:30",
+            "close": "17:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "09:30",
+            "close": "17:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 20,
+    "avgDurationMin": 120,
+    "indoor": true,
+    "vegFriendly": false
+  },
+  {
+    "id": "dotonbori",
+    "cityKey": "osaka",
+    "name": "Dotonbori",
+    "category": "street",
+    "district": "namba",
+    "lat": 34.6687,
+    "lng": 135.5013,
+    "openingHours": {
+      "alwaysOpen": true
+    },
+    "estCostPerPerson": 60,
+    "avgDurationMin": 120,
+    "indoor": false,
+    "vegFriendly": true
+  },
+  {
+    "id": "kaiyukan",
+    "cityKey": "osaka",
+    "name": "Osaka Aquarium Kaiyukan",
+    "category": "sight",
+    "district": "bay",
+    "lat": 34.6545,
+    "lng": 135.429,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "09:30",
+            "close": "20:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "09:30",
+            "close": "20:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "09:30",
+            "close": "20:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "09:30",
+            "close": "20:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "09:30",
+            "close": "20:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "09:30",
+            "close": "20:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "09:30",
+            "close": "20:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 75,
+    "avgDurationMin": 150,
+    "indoor": true,
+    "vegFriendly": false
+  },
+  {
+    "id": "tempozan-marketplace",
+    "cityKey": "osaka",
+    "name": "Tempozan Marketplace",
+    "category": "food",
+    "district": "bay",
+    "lat": 34.6553,
+    "lng": 135.4304,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 40,
+    "avgDurationMin": 60,
+    "indoor": true,
+    "vegFriendly": true
+  },
+  {
+    "id": "tempozan-ferris-wheel",
+    "cityKey": "osaka",
+    "name": "Tempozan Giant Ferris Wheel",
+    "category": "sight",
+    "district": "bay",
+    "lat": 34.656,
+    "lng": 135.4288,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "10:00",
+            "close": "22:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "10:00",
+            "close": "22:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "10:00",
+            "close": "22:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "10:00",
+            "close": "22:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "10:00",
+            "close": "22:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "10:00",
+            "close": "22:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "10:00",
+            "close": "22:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 25,
+    "avgDurationMin": 60,
+    "indoor": true,
+    "vegFriendly": false
+  },
+  {
+    "id": "namba-sennichimae",
+    "cityKey": "osaka",
+    "name": "Namba Sennichimae",
+    "category": "street",
+    "district": "namba",
+    "lat": 34.6656,
+    "lng": 135.504,
+    "openingHours": {
+      "alwaysOpen": true
+    },
+    "estCostPerPerson": 70,
+    "avgDurationMin": 120,
+    "indoor": false,
+    "vegFriendly": true
+  },
+  {
+    "id": "usj",
+    "cityKey": "osaka",
+    "name": "Universal Studios Japan",
+    "category": "theme-park",
+    "district": "konohana",
+    "lat": 34.6654,
+    "lng": 135.4323,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "09:00",
+            "close": "21:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "09:00",
+            "close": "21:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "09:00",
+            "close": "21:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "09:00",
+            "close": "21:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "09:00",
+            "close": "21:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "09:00",
+            "close": "21:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "09:00",
+            "close": "21:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 260,
+    "avgDurationMin": 300,
+    "indoor": false,
+    "vegFriendly": true
+  },
+  {
+    "id": "universal-citywalk",
+    "cityKey": "osaka",
+    "name": "Universal CityWalk Osaka",
+    "category": "food",
+    "district": "konohana",
+    "lat": 34.6669,
+    "lng": 135.434,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "11:00",
+            "close": "22:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "11:00",
+            "close": "22:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "11:00",
+            "close": "22:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "11:00",
+            "close": "22:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "11:00",
+            "close": "22:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "11:00",
+            "close": "22:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "11:00",
+            "close": "22:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 45,
+    "avgDurationMin": 60,
+    "indoor": true,
+    "vegFriendly": true
+  },
+  {
+    "id": "umeda-food-hall",
+    "cityKey": "osaka",
+    "name": "Umeda Food Hall",
+    "category": "food",
+    "district": "kita",
+    "lat": 34.7025,
+    "lng": 135.4959,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "11:00",
+            "close": "23:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "11:00",
+            "close": "23:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "11:00",
+            "close": "23:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "11:00",
+            "close": "23:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "11:00",
+            "close": "23:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "11:00",
+            "close": "23:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "11:00",
+            "close": "23:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 55,
+    "avgDurationMin": 90,
+    "indoor": true,
+    "vegFriendly": true
+  },
+  {
+    "id": "umeda-sky-building",
+    "cityKey": "osaka",
+    "name": "Umeda Sky Building",
+    "category": "sight",
+    "district": "kita",
+    "lat": 34.7052,
+    "lng": 135.4903,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "09:30",
+            "close": "22:30"
+          }
+        ],
+        "1": [
+          {
+            "open": "09:30",
+            "close": "22:30"
+          }
+        ],
+        "2": [
+          {
+            "open": "09:30",
+            "close": "22:30"
+          }
+        ],
+        "3": [
+          {
+            "open": "09:30",
+            "close": "22:30"
+          }
+        ],
+        "4": [
+          {
+            "open": "09:30",
+            "close": "22:30"
+          }
+        ],
+        "5": [
+          {
+            "open": "09:30",
+            "close": "22:30"
+          }
+        ],
+        "6": [
+          {
+            "open": "09:30",
+            "close": "22:30"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 45,
+    "avgDurationMin": 90,
+    "indoor": true,
+    "vegFriendly": false
+  },
+  {
+    "id": "nakanoshima-park",
+    "cityKey": "osaka",
+    "name": "Nakanoshima Park",
+    "category": "park",
+    "district": "kita",
+    "lat": 34.6923,
+    "lng": 135.5063,
+    "openingHours": {
+      "alwaysOpen": true
+    },
+    "estCostPerPerson": 0,
+    "avgDurationMin": 90,
+    "indoor": false,
+    "vegFriendly": true
+  },
+  {
+    "id": "nmao",
+    "cityKey": "osaka",
+    "name": "National Museum of Art, Osaka",
+    "category": "museum",
+    "district": "kita",
+    "lat": 34.6917,
+    "lng": 135.4919,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "10:00",
+            "close": "17:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "10:00",
+            "close": "17:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "10:00",
+            "close": "17:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "10:00",
+            "close": "17:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "10:00",
+            "close": "17:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "10:00",
+            "close": "17:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 30,
+    "avgDurationMin": 120,
+    "indoor": true,
+    "vegFriendly": false
+  },
+  {
+    "id": "tenjinbashisuji",
+    "cityKey": "osaka",
+    "name": "Tenjinbashisuji Shotengai",
+    "category": "street",
+    "district": "kita",
+    "lat": 34.7043,
+    "lng": 135.5122,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "10:00",
+            "close": "22:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "10:00",
+            "close": "22:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "10:00",
+            "close": "22:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "10:00",
+            "close": "22:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "10:00",
+            "close": "22:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "10:00",
+            "close": "22:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "10:00",
+            "close": "22:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 50,
+    "avgDurationMin": 90,
+    "indoor": true,
+    "vegFriendly": true
+  },
+  {
+    "id": "shitennoji",
+    "cityKey": "osaka",
+    "name": "Shitennoji Temple",
+    "category": "temple",
+    "district": "tennoji",
+    "lat": 34.6544,
+    "lng": 135.5165,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "08:30",
+            "close": "16:30"
+          }
+        ],
+        "1": [
+          {
+            "open": "08:30",
+            "close": "16:30"
+          }
+        ],
+        "2": [
+          {
+            "open": "08:30",
+            "close": "16:30"
+          }
+        ],
+        "3": [
+          {
+            "open": "08:30",
+            "close": "16:30"
+          }
+        ],
+        "4": [
+          {
+            "open": "08:30",
+            "close": "16:30"
+          }
+        ],
+        "5": [
+          {
+            "open": "08:30",
+            "close": "16:30"
+          }
+        ],
+        "6": [
+          {
+            "open": "08:30",
+            "close": "16:30"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 15,
+    "avgDurationMin": 90,
+    "indoor": false,
+    "vegFriendly": true
+  },
+  {
+    "id": "tennoji-park",
+    "cityKey": "osaka",
+    "name": "Tennoji Park",
+    "category": "park",
+    "district": "tennoji",
+    "lat": 34.6506,
+    "lng": 135.5106,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "07:00",
+            "close": "22:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "07:00",
+            "close": "22:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "07:00",
+            "close": "22:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "07:00",
+            "close": "22:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "07:00",
+            "close": "22:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "07:00",
+            "close": "22:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "07:00",
+            "close": "22:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 10,
+    "avgDurationMin": 90,
+    "indoor": false,
+    "vegFriendly": true
+  },
+  {
+    "id": "abeno-harukas",
+    "cityKey": "osaka",
+    "name": "Abeno Harukas",
+    "category": "sight",
+    "district": "tennoji",
+    "lat": 34.6459,
+    "lng": 135.5136,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "09:00",
+            "close": "22:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "09:00",
+            "close": "22:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "09:00",
+            "close": "22:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "09:00",
+            "close": "22:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "09:00",
+            "close": "22:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "09:00",
+            "close": "22:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "09:00",
+            "close": "22:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 55,
+    "avgDurationMin": 90,
+    "indoor": true,
+    "vegFriendly": false
+  },
+  {
+    "id": "kuromon-ichiba",
+    "cityKey": "osaka",
+    "name": "Kuromon Ichiba Market",
+    "category": "market",
+    "district": "namba",
+    "lat": 34.6653,
+    "lng": 135.5062,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "09:00",
+            "close": "18:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "09:00",
+            "close": "18:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "09:00",
+            "close": "18:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "09:00",
+            "close": "18:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "09:00",
+            "close": "18:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "09:00",
+            "close": "18:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "09:00",
+            "close": "18:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 55,
+    "avgDurationMin": 90,
+    "indoor": true,
+    "vegFriendly": true
+  },
+  {
+    "id": "shinsekai-tsutenkaku",
+    "cityKey": "osaka",
+    "name": "Shinsekai and Tsutenkaku",
+    "category": "sight",
+    "district": "naniwa",
+    "lat": 34.6524,
+    "lng": 135.5063,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "10:00",
+            "close": "20:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "10:00",
+            "close": "20:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "10:00",
+            "close": "20:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "10:00",
+            "close": "20:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "10:00",
+            "close": "20:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "10:00",
+            "close": "20:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "10:00",
+            "close": "20:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 35,
+    "avgDurationMin": 90,
+    "indoor": false,
+    "vegFriendly": false
+  },
+  {
+    "id": "sumiyoshi-taisha",
+    "cityKey": "osaka",
+    "name": "Sumiyoshi Taisha",
+    "category": "temple",
+    "district": "sumiyoshi",
+    "lat": 34.6127,
+    "lng": 135.4933,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "06:30",
+            "close": "17:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "06:30",
+            "close": "17:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "06:30",
+            "close": "17:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "06:30",
+            "close": "17:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "06:30",
+            "close": "17:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "06:30",
+            "close": "17:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "06:30",
+            "close": "17:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 0,
+    "avgDurationMin": 90,
+    "indoor": false,
+    "vegFriendly": true
+  },
+  {
+    "id": "nakazakicho",
+    "cityKey": "osaka",
+    "name": "Nakazakicho Cafe Streets",
+    "category": "street",
+    "district": "kita",
+    "lat": 34.7075,
+    "lng": 135.5028,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "11:00",
+            "close": "19:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "11:00",
+            "close": "19:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "11:00",
+            "close": "19:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "11:00",
+            "close": "19:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "11:00",
+            "close": "19:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "11:00",
+            "close": "19:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "11:00",
+            "close": "19:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 35,
+    "avgDurationMin": 90,
+    "indoor": true,
+    "vegFriendly": true
+  },
+  {
+    "id": "amerikamura",
+    "cityKey": "osaka",
+    "name": "Amerikamura",
+    "category": "shopping",
+    "district": "chuo",
+    "lat": 34.672,
+    "lng": 135.4977,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 40,
+    "avgDurationMin": 90,
+    "indoor": false,
+    "vegFriendly": true
+  },
+  {
+    "id": "osaka-science-museum",
+    "cityKey": "osaka",
+    "name": "Osaka Science Museum",
+    "category": "museum",
+    "district": "kita",
+    "lat": 34.6913,
+    "lng": 135.4914,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "09:30",
+            "close": "17:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "09:30",
+            "close": "17:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "09:30",
+            "close": "17:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "09:30",
+            "close": "17:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "09:30",
+            "close": "17:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "09:30",
+            "close": "17:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 25,
+    "avgDurationMin": 120,
+    "indoor": true,
+    "vegFriendly": false
+  },
+  {
+    "id": "den-den-town",
+    "cityKey": "osaka",
+    "name": "Nipponbashi Den Den Town",
+    "category": "shopping",
+    "district": "naniwa",
+    "lat": 34.6614,
+    "lng": 135.5057,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 30,
+    "avgDurationMin": 90,
+    "indoor": true,
+    "vegFriendly": false
+  },
+  {
+    "id": "minoo-park",
+    "cityKey": "osaka",
+    "name": "Minoo Park",
+    "category": "park",
+    "district": "minoo",
+    "lat": 34.8541,
+    "lng": 135.472,
+    "openingHours": {
+      "alwaysOpen": true
+    },
+    "estCostPerPerson": 0,
+    "avgDurationMin": 180,
+    "indoor": false,
+    "vegFriendly": true
+  },
+  {
+    "id": "instant-ramen-museum",
+    "cityKey": "osaka",
+    "name": "Cupnoodles Museum Osaka Ikeda",
+    "category": "museum",
+    "district": "ikeda",
+    "lat": 34.8148,
+    "lng": 135.4319,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "09:30",
+            "close": "16:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "09:30",
+            "close": "16:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "09:30",
+            "close": "16:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "09:30",
+            "close": "16:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "09:30",
+            "close": "16:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "09:30",
+            "close": "16:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 15,
+    "avgDurationMin": 90,
+    "indoor": true,
+    "vegFriendly": true
+  },
+  {
+    "id": "osaka-tenmangu",
+    "cityKey": "osaka",
+    "name": "Osaka Tenmangu Shrine",
+    "category": "temple",
+    "district": "kita",
+    "lat": 34.696,
+    "lng": 135.5127,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 0,
+    "avgDurationMin": 60,
+    "indoor": false,
+    "vegFriendly": true
+  },
+  {
+    "id": "katsuoji",
+    "cityKey": "osaka",
+    "name": "Katsuoji Temple",
+    "category": "temple",
+    "district": "minoo",
+    "lat": 34.8617,
+    "lng": 135.5013,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "08:00",
+            "close": "17:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "08:00",
+            "close": "17:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "08:00",
+            "close": "17:00"
+          }
+        ],
+        "3": [
+          {
+            "open": "08:00",
+            "close": "17:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "08:00",
+            "close": "17:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "08:00",
+            "close": "17:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "08:00",
+            "close": "17:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 20,
+    "avgDurationMin": 120,
+    "indoor": false,
+    "vegFriendly": true
+  },
+  {
+    "id": "expo70-park",
+    "cityKey": "osaka",
+    "name": "Expo '70 Commemorative Park",
+    "category": "park",
+    "district": "suita",
+    "lat": 34.8073,
+    "lng": 135.5303,
+    "openingHours": {
+      "periods": {
+        "0": [
+          {
+            "open": "09:30",
+            "close": "17:00"
+          }
+        ],
+        "1": [
+          {
+            "open": "09:30",
+            "close": "17:00"
+          }
+        ],
+        "2": [
+          {
+            "open": "09:30",
+            "close": "17:00"
+          }
+        ],
+        "4": [
+          {
+            "open": "09:30",
+            "close": "17:00"
+          }
+        ],
+        "5": [
+          {
+            "open": "09:30",
+            "close": "17:00"
+          }
+        ],
+        "6": [
+          {
+            "open": "09:30",
+            "close": "17:00"
+          }
+        ]
+      }
+    },
+    "estCostPerPerson": 15,
+    "avgDurationMin": 150,
+    "indoor": false,
+    "vegFriendly": true
+  }
+]

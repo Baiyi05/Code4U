@@ -163,7 +163,8 @@ export const SourceCitationSchema = z.object({
 });
 export type SourceCitation = z.infer<typeof SourceCitationSchema>;
 
-export const BlockOriginSchema = z.enum(['ai', 'captain', 'replan']);
+/** 'seed' marks a block that came from the fallback data, not from this trip's LLM run */
+export const BlockOriginSchema = z.enum(['ai', 'captain', 'replan', 'seed']);
 export type BlockOrigin = z.infer<typeof BlockOriginSchema>;
 
 export const BlockSchema = z.object({
@@ -222,6 +223,8 @@ export const ViolationCodeSchema = z.enum([
   'missing_forced',
   'invalid_day',
   'invalid_time',
+  /** the locked blocks alone are over the ceiling — enforceBudget cannot fix it */
+  'locked_over_budget',
 ]);
 export type ViolationCode = z.infer<typeof ViolationCodeSchema>;
 
@@ -240,6 +243,23 @@ export const ValidationResultSchema = z.object({
   violations: z.array(ViolationSchema),
 });
 export type ValidationResult = z.infer<typeof ValidationResultSchema>;
+
+// ---------------------------------------------------------------------------
+// L2 Taste — retrieved knowledge (§7 step 4)
+// ---------------------------------------------------------------------------
+
+/** One row of what match_knowledge() returns, plus the two columns it does not select. */
+export const KnowledgeChunkSchema = z.object({
+  chunk: z.string(),
+  /** e.g. 'Wikivoyage / Osaka' — this is what ends up in block.sourceCitation.source */
+  source: z.string(),
+  url: z.url().nullish(),
+  district: z.string().nullish(),
+  tags: z.array(z.string()).nullish(),
+  /** 1 - cosine distance; absent when the retriever does not report it */
+  similarity: z.number().nullish(),
+});
+export type KnowledgeChunk = z.infer<typeof KnowledgeChunkSchema>;
 
 // ---------------------------------------------------------------------------
 // LLM output — itinerary generation (§7 step 5)
@@ -321,3 +341,23 @@ export type ReplanOps = z.infer<typeof ReplanOpsSchema>;
 /** The bare array, matching the replan_diffs.ops column */
 export const ReplanOpListSchema = z.array(ReplanOpSchema);
 export type ReplanOpList = z.infer<typeof ReplanOpListSchema>;
+
+// ---------------------------------------------------------------------------
+// Seed data (§7 step 6 / §11 — the fallback that keeps the demo alive)
+// ---------------------------------------------------------------------------
+
+/**
+ * The shape of seeds/osaka-trip.json.
+ *
+ * It carries its own trip and preferences rather than bare blocks, because the
+ * only way to prove a fallback itinerary is legal is to derive constraints from
+ * it and run validateItinerary. A seed that is not valid against its own inputs
+ * is worse than no seed at all.
+ */
+export const SeedItinerarySchema = z.object({
+  trip: TripSchema,
+  members: z.array(MemberSchema),
+  preferences: z.array(PreferenceSchema),
+  blocks: z.array(BlockSchema),
+});
+export type SeedItinerary = z.infer<typeof SeedItinerarySchema>;

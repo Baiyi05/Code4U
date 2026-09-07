@@ -1,0 +1,129 @@
+@import 'tailwindcss';
+
+/* lib/demo-data.ts carries per-member tint classes, so it has to be scanned too. */
+@source '../lib';
+
+/*
+ * Detour — prototype theme.
+ *
+ * One accent (ink), a warm paper ground, and four semantic colours that carry
+ * the whole re-plan diff: removed / moved / added / kept. Those four are the
+ * only place colour is allowed to mean something.
+ */
+
+@theme {
+  --color-paper: oklch(0.985 0.004 85);
+  --color-card: oklch(1 0 0);
+  --color-ink: oklch(0.21 0.02 250);
+  --color-ink-soft: oklch(0.45 0.015 250);
+  --color-ink-faint: oklch(0.62 0.012 250);
+  --color-line: oklch(0.91 0.006 250);
+  --color-line-soft: oklch(0.95 0.004 250);
+
+  --color-accent: oklch(0.52 0.13 210);
+  --color-accent-soft: oklch(0.95 0.03 210);
+  --color-accent-ink: oklch(0.38 0.11 210);
+
+  --color-removed: oklch(0.55 0.19 25);
+  --color-removed-soft: oklch(0.96 0.03 25);
+  --color-moved: oklch(0.62 0.14 70);
+  --color-moved-soft: oklch(0.96 0.04 75);
+  --color-added: oklch(0.53 0.13 155);
+  --color-added-soft: oklch(0.95 0.04 155);
+  --color-kept: oklch(0.55 0.02 250);
+  --color-kept-soft: oklch(0.96 0.004 250);
+
+  --color-warn: oklch(0.58 0.16 45);
+  --color-warn-soft: oklch(0.97 0.035 60);
+
+  --radius-card: 0.875rem;
+
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+
+  --animate-rise: rise 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-sheet-up: sheet-up 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.985);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes sheet-up {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: none;
+    }
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  /*
+   * One deliberate look, not a theme. Declared so a phone in dark mode does not
+   * repaint the native date pickers and form controls against a light page.
+   */
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* The whole prototype is read on a phone first; never let it scroll sideways. */
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: var(--color-accent-soft);
+  }
+}
+
+@utility label-caps {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

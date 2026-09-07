@@ -2,3 +2,6 @@ node_modules/
 .next/
 .env.local
 .DS_Store
+
+# TypeScript incremental build cache
+*.tsbuildinfo

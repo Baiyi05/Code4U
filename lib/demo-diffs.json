@@ -1,0 +1,572 @@
+{
+  "delay": {
+    "ops": [
+      {
+        "id": "op-01",
+        "op": {
+          "op": "move",
+          "blockId": "b01",
+          "to": {
+            "day": 1,
+            "startTime": "12:30",
+            "durationMin": 120
+          },
+          "note": "The castle is the one thing that survives the delay — it just starts when you land."
+        },
+        "costDelta": 0,
+        "violations": []
+      },
+      {
+        "id": "op-02",
+        "op": {
+          "op": "remove",
+          "blockId": "b02",
+          "note": "You are still in the air at noon. A sit-down lunch inside the park no longer fits."
+        },
+        "costDelta": -75,
+        "violations": []
+      },
+      {
+        "id": "op-03",
+        "op": {
+          "op": "move",
+          "blockId": "b03",
+          "to": {
+            "day": 1,
+            "startTime": "15:00",
+            "durationMin": 90
+          },
+          "note": "Trimmed to 90 minutes so it still ends before the 17:00 close."
+        },
+        "costDelta": 0,
+        "violations": []
+      },
+      {
+        "id": "op-04",
+        "op": {
+          "op": "add",
+          "block": {
+            "day": 1,
+            "startTime": "16:45",
+            "durationMin": 75,
+            "title": "Amerikamura at dusk",
+            "subtitle": "Chuo · thrift blocks, ten minutes from the booked table",
+            "placeId": "amerikamura",
+            "costPerPerson": 40,
+            "reason": {
+              "budget": "RM 40 — RM 35 less than the lunch it replaces.",
+              "constraint": "Open to 20:00 and a short walk from the Dotonbori booking."
+            }
+          },
+          "note": "Fills the gap the delay opened up, and walks you towards the locked dinner."
+        },
+        "costDelta": 40,
+        "violations": []
+      }
+    ],
+    "budgetDelta": -35,
+    "violations": [],
+    "window": {
+      "day": 1,
+      "earliestStart": "12:30",
+      "latestEnd": "23:59"
+    },
+    "immovable": [
+      "b04"
+    ],
+    "movable": [
+      "b01",
+      "b02",
+      "b03"
+    ],
+    "citations": [
+      {
+        "chunk": "The bay area around Kaiyukan is reached on the Chuo subway line, then a short walk.",
+        "source": "Wikivoyage / Osaka",
+        "url": "https://en.wikivoyage.org/wiki/Osaka",
+        "district": "bay",
+        "tags": [
+          "sight",
+          "views"
+        ],
+        "similarity": 0.7
+      },
+      {
+        "chunk": "Osaka Castle sits in a public park; the keep charges admission but the grounds do not.",
+        "source": "Wikivoyage / Osaka",
+        "url": "https://en.wikivoyage.org/wiki/Osaka",
+        "district": "chuo",
+        "tags": [
+          "history",
+          "castles",
+          "sight"
+        ],
+        "similarity": 0.8
+      },
+      {
+        "chunk": "Osaka has a long-standing vegetarian and halal scene around Namba and Nipponbashi.",
+        "source": "Wikivoyage / Osaka",
+        "url": "https://en.wikivoyage.org/wiki/Osaka",
+        "district": "namba",
+        "tags": [
+          "vegetarian",
+          "no pork",
+          "food"
+        ],
+        "similarity": 0.8
+      },
+      {
+        "chunk": "Dotonbori runs along the canal and is busiest after dark, when the signage is lit.",
+        "source": "Wikivoyage / Osaka",
+        "url": "https://en.wikivoyage.org/wiki/Osaka",
+        "district": "namba",
+        "tags": [
+          "street food",
+          "nightlife"
+        ],
+        "similarity": 0.6
+      },
+      {
+        "chunk": "Tenjinbashisuji is the longest covered shopping street in Japan and is cheap to eat on.",
+        "source": "Wikivoyage / Osaka",
+        "url": "https://en.wikivoyage.org/wiki/Osaka",
+        "district": "kita",
+        "tags": [
+          "street food",
+          "shopping"
+        ],
+        "similarity": 0.6
+      }
+    ],
+    "source": "llm",
+    "shortfall": 0
+  },
+  "weather": {
+    "ops": [
+      {
+        "id": "op-01",
+        "op": {
+          "op": "remove",
+          "blockId": "b17",
+          "note": "Shitennoji is open ground from the gate onwards — there is nothing to shelter under."
+        },
+        "costDelta": -30,
+        "violations": []
+      },
+      {
+        "id": "op-02",
+        "op": {
+          "op": "remove",
+          "blockId": "b18",
+          "note": "The garden is the entire reason to go, and it will be under water."
+        },
+        "costDelta": -15,
+        "violations": []
+      },
+      {
+        "id": "op-03",
+        "op": {
+          "op": "move",
+          "blockId": "b19",
+          "to": {
+            "day": 5,
+            "startTime": "11:00",
+            "durationMin": 90
+          },
+          "note": "Indoors already, so it moves up to hold the middle of the day together."
+        },
+        "costDelta": 0,
+        "violations": []
+      },
+      {
+        "id": "op-04",
+        "op": {
+          "op": "add",
+          "block": {
+            "day": 5,
+            "startTime": "09:30",
+            "durationMin": 90,
+            "title": "Kuromon Ichiba market",
+            "subtitle": "Namba · roofed the whole length",
+            "placeId": "kuromon-ichiba",
+            "costPerPerson": 55,
+            "reason": {
+              "budget": "RM 55 including breakfast, against RM 45 of tickets it replaces.",
+              "constraint": "Fully covered, and it opens at 09:00."
+            }
+          },
+          "note": "A covered market is the closest thing to the morning you were going to have."
+        },
+        "costDelta": 55,
+        "violations": []
+      },
+      {
+        "id": "op-05",
+        "op": {
+          "op": "add",
+          "block": {
+            "day": 5,
+            "startTime": "14:00",
+            "durationMin": 90,
+            "title": "Den Den Town",
+            "subtitle": "Naniwa · arcades and electronics streets",
+            "placeId": "den-den-town",
+            "costPerPerson": 30,
+            "reason": {
+              "budget": "RM 30 · the cheapest indoor afternoon on the candidate list.",
+              "constraint": "Indoors, and it runs to 20:00 if the rain holds you there."
+            }
+          },
+          "note": "Keeps the afternoon indoors without moving the locked dinner."
+        },
+        "costDelta": 30,
+        "violations": []
+      }
+    ],
+    "budgetDelta": 40,
+    "violations": [],
+    "window": {
+      "day": 5,
+      "earliestStart": "09:30",
+      "latestEnd": "23:59"
+    },
+    "immovable": [
+      "b20"
+    ],
+    "movable": [
+      "b17",
+      "b18",
+      "b19"
+    ],
+    "citations": [
+      {
+        "chunk": "Osaka Castle sits in a public park; the keep charges admission but the grounds do not.",
+        "source": "Wikivoyage / Osaka",
+        "url": "https://en.wikivoyage.org/wiki/Osaka",
+        "district": "chuo",
+        "tags": [
+          "history",
+          "castles",
+          "sight"
+        ]
+      },
+      {
+        "chunk": "Dotonbori runs along the canal and is busiest after dark, when the signage is lit.",
+        "source": "Wikivoyage / Osaka",
+        "url": "https://en.wikivoyage.org/wiki/Osaka",
+        "district": "namba",
+        "tags": [
+          "street food",
+          "nightlife"
+        ]
+      },
+      {
+        "chunk": "Universal Studios Japan allows same-day re-entry, so lunch can be taken outside the park.",
+        "source": "Wikivoyage / Osaka",
+        "url": "https://en.wikivoyage.org/wiki/Osaka",
+        "district": "konohana",
+        "tags": [
+          "theme parks"
+        ],
+        "similarity": 0.8
+      },
+      {
+        "chunk": "The bay area around Kaiyukan is reached on the Chuo subway line, then a short walk.",
+        "source": "Wikivoyage / Osaka",
+        "url": "https://en.wikivoyage.org/wiki/Osaka",
+        "district": "bay",
+        "tags": [
+          "sight",
+          "views"
+        ],
+        "similarity": 0.8
+      }
+    ],
+    "source": "llm",
+    "shortfall": 0
+  },
+  "closed": {
+    "ops": [
+      {
+        "id": "op-01",
+        "op": {
+          "op": "remove",
+          "blockId": "b05",
+          "note": "Kaiyukan is shut today. Nothing else at the bay replaces two and a half hours of it."
+        },
+        "costDelta": -130,
+        "violations": []
+      },
+      {
+        "id": "op-02",
+        "op": {
+          "op": "move",
+          "blockId": "b07",
+          "to": {
+            "day": 2,
+            "startTime": "10:00",
+            "durationMin": 60
+          },
+          "note": "The wheel opens at 10:00 and is now the reason to be at the bay at all."
+        },
+        "costDelta": 0,
+        "violations": []
+      },
+      {
+        "id": "op-03",
+        "op": {
+          "op": "move",
+          "blockId": "b06",
+          "to": {
+            "day": 2,
+            "startTime": "11:30",
+            "durationMin": 60
+          },
+          "note": "Lunch moves up an hour to follow the wheel rather than the aquarium."
+        },
+        "costDelta": 0,
+        "violations": []
+      },
+      {
+        "id": "op-04",
+        "op": {
+          "op": "add",
+          "block": {
+            "day": 2,
+            "startTime": "13:30",
+            "durationMin": 120,
+            "title": "Osaka Science Museum",
+            "subtitle": "Kita · planetarium under the same roof",
+            "placeId": "osaka-science-museum",
+            "costPerPerson": 25,
+            "reason": {
+              "budget": "RM 25 against the RM 130 aquarium ticket that fell through.",
+              "constraint": "Open Tuesdays, unlike the history museum, and indoors."
+            }
+          },
+          "note": "Buys back the afternoon the closure took, at a fifth of the price."
+        },
+        "costDelta": 25,
+        "violations": []
+      }
+    ],
+    "budgetDelta": -105,
+    "violations": [],
+    "window": {
+      "day": 2,
+      "earliestStart": "09:30",
+      "latestEnd": "23:59"
+    },
+    "immovable": [
+      "b08"
+    ],
+    "movable": [
+      "b05",
+      "b06",
+      "b07"
+    ],
+    "citations": [
+      {
+        "chunk": "The bay area around Kaiyukan is reached on the Chuo subway line, then a short walk.",
+        "source": "Wikivoyage / Osaka",
+        "url": "https://en.wikivoyage.org/wiki/Osaka",
+        "district": "bay",
+        "tags": [
+          "sight",
+          "views"
+        ],
+        "similarity": 0.7
+      },
+      {
+        "chunk": "Osaka Castle sits in a public park; the keep charges admission but the grounds do not.",
+        "source": "Wikivoyage / Osaka",
+        "url": "https://en.wikivoyage.org/wiki/Osaka",
+        "district": "chuo",
+        "tags": [
+          "history",
+          "castles",
+          "sight"
+        ],
+        "similarity": 0.8
+      },
+      {
+        "chunk": "Osaka has a long-standing vegetarian and halal scene around Namba and Nipponbashi.",
+        "source": "Wikivoyage / Osaka",
+        "url": "https://en.wikivoyage.org/wiki/Osaka",
+        "district": "namba",
+        "tags": [
+          "vegetarian",
+          "no pork",
+          "food"
+        ],
+        "similarity": 0.8
+      },
+      {
+        "chunk": "Dotonbori runs along the canal and is busiest after dark, when the signage is lit.",
+        "source": "Wikivoyage / Osaka",
+        "url": "https://en.wikivoyage.org/wiki/Osaka",
+        "district": "namba",
+        "tags": [
+          "street food",
+          "nightlife"
+        ],
+        "similarity": 0.6
+      },
+      {
+        "chunk": "Tenjinbashisuji is the longest covered shopping street in Japan and is cheap to eat on.",
+        "source": "Wikivoyage / Osaka",
+        "url": "https://en.wikivoyage.org/wiki/Osaka",
+        "district": "kita",
+        "tags": [
+          "street food",
+          "shopping"
+        ],
+        "similarity": 0.6
+      }
+    ],
+    "source": "llm",
+    "shortfall": 0
+  },
+  "overbudget": {
+    "ops": [
+      {
+        "id": "op-01",
+        "op": {
+          "op": "remove",
+          "blockId": "b12",
+          "note": "A RM 120 sit-down dinner at 20:00 after eleven hours in a theme park is the easiest cut on the plan."
+        },
+        "costDelta": -120,
+        "violations": []
+      },
+      {
+        "id": "op-02",
+        "op": {
+          "op": "remove",
+          "blockId": "b16",
+          "note": "The arcade is still worth walking; it does not have to be the RM 110 sit-down version."
+        },
+        "costDelta": -110,
+        "violations": []
+      },
+      {
+        "id": "op-03",
+        "op": {
+          "op": "remove",
+          "blockId": "b19",
+          "note": "Two paid observatories in five days, and this is the second one."
+        },
+        "costDelta": -95,
+        "violations": []
+      },
+      {
+        "id": "op-04",
+        "op": {
+          "op": "add",
+          "block": {
+            "day": 5,
+            "startTime": "14:00",
+            "durationMin": 90,
+            "title": "Tsutenkaku, Shinsekai",
+            "subtitle": "Naniwa · the older tower, and the neighbourhood around it",
+            "placeId": "shinsekai-tsutenkaku",
+            "costPerPerson": 35,
+            "reason": {
+              "budget": "RM 35 against RM 95 — the same view for a third of the money.",
+              "constraint": "Open to 20:00, so it drops straight into the slot that opened up."
+            }
+          },
+          "note": "Keeps a view on the last afternoon while still handing back RM 60 of it."
+        },
+        "costDelta": 35,
+        "violations": []
+      }
+    ],
+    "budgetDelta": -290,
+    "violations": [],
+    "window": {
+      "day": null,
+      "earliestStart": "12:00",
+      "latestEnd": "23:59"
+    },
+    "immovable": [
+      "b05",
+      "b08",
+      "b09",
+      "b20"
+    ],
+    "movable": [
+      "b12",
+      "b16",
+      "b19",
+      "b13",
+      "b10",
+      "b06",
+      "b15",
+      "b07",
+      "b17",
+      "b18",
+      "b11",
+      "b14"
+    ],
+    "citations": [
+      {
+        "chunk": "Osaka Castle sits in a public park; the keep charges admission but the grounds do not.",
+        "source": "Wikivoyage / Osaka",
+        "url": "https://en.wikivoyage.org/wiki/Osaka",
+        "district": "chuo",
+        "tags": [
+          "history",
+          "castles",
+          "sight"
+        ]
+      },
+      {
+        "chunk": "Dotonbori runs along the canal and is busiest after dark, when the signage is lit.",
+        "source": "Wikivoyage / Osaka",
+        "url": "https://en.wikivoyage.org/wiki/Osaka",
+        "district": "namba",
+        "tags": [
+          "street food",
+          "nightlife"
+        ]
+      },
+      {
+        "chunk": "Osaka has a long-standing vegetarian and halal scene around Namba and Nipponbashi.",
+        "source": "Wikivoyage / Osaka",
+        "url": "https://en.wikivoyage.org/wiki/Osaka",
+        "district": "namba",
+        "tags": [
+          "vegetarian",
+          "no pork",
+          "food"
+        ],
+        "similarity": 0.8
+      },
+      {
+        "chunk": "Tenjinbashisuji is the longest covered shopping street in Japan and is cheap to eat on.",
+        "source": "Wikivoyage / Osaka",
+        "url": "https://en.wikivoyage.org/wiki/Osaka",
+        "district": "kita",
+        "tags": [
+          "street food",
+          "shopping"
+        ],
+        "similarity": 0.6
+      },
+      {
+        "chunk": "The bay area around Kaiyukan is reached on the Chuo subway line, then a short walk.",
+        "source": "Wikivoyage / Osaka",
+        "url": "https://en.wikivoyage.org/wiki/Osaka",
+        "district": "bay",
+        "tags": [
+          "sight",
+          "views"
+        ],
+        "similarity": 0.8
+      }
+    ],
+    "source": "llm",
+    "shortfall": 280
+  }
+}

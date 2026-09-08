@@ -17,7 +17,17 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      {/*
+       * suppressHydrationWarning is here because extensions — Grammarly is the
+       * usual one — inject attributes such as data-gr-ext-installed onto <body>
+       * before React hydrates, which React then reports as a mismatch we did not
+       * cause.
+       *
+       * It stays on this one element. The flag only covers the element's own
+       * attributes and text and does not pass down, so a real hydration bug
+       * anywhere inside the tree is still reported.
+       */}
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }

@@ -43,10 +43,20 @@ import {
   DEMO_SCENARIOS,
   DEMO_TRIP,
   JOINING_PREFERENCE,
+  PLACE_KNOWLEDGE,
+  PLACE_MEDIA,
+  THUMB_WIDTHS,
+  addressOf,
+  citationFor,
+  knowledgeFor,
   demoConstraints,
+  diffFor,
   expensesOf,
   immovableIdsAt,
+  mediaFor,
+  replacementWhy,
   settleUp,
+  thumbAt,
   type ScenarioKey,
 } from './demo-data';
 import type { Block, Place, ReplanOps } from './schemas';
@@ -620,5 +630,223 @@ describe('the candidate list a day at a time', () => {
   it('keeps every place the itinerary uses in the union across days', () => {
     const used = new Set(DEMO_BLOCKS.map((b: Block) => b.placeId).filter(Boolean));
     for (const id of used) expect(pool.ids.has(String(id))).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 6. Photos and addresses
+// ---------------------------------------------------------------------------
+
+describe('place photos', () => {
+  it('covers every place the itinerary and the diffs can reach', () => {
+    const needed = new Set<string>();
+    for (const block of DEMO_BLOCKS) if (block.placeId) needed.add(block.placeId);
+    for (const key of KEYS) {
+      for (const entry of diffFor(key).ops) {
+        if (entry.op.op === 'add') needed.add(entry.op.block.placeId);
+      }
+    }
+    for (const id of needed) {
+      expect(PLACE_MEDIA[id], `no photo for ${id}`).toBeDefined();
+    }
+  });
+
+  it('only ships freely licensed photos, with the photographer named', () => {
+    for (const [id, media] of Object.entries(PLACE_MEDIA)) {
+      expect(media.license, `${id} licence`).toMatch(/^(CC|Public domain)/i);
+      expect(media.fileUrl, `${id} file page`).toContain('commons.wikimedia.org');
+      // the credit line has to be able to say who took it
+      expect(media.artist ?? '', `${id} artist`).not.toBe('');
+    }
+  });
+
+  it('stores URLs at a width Commons will actually serve', () => {
+    for (const [id, media] of Object.entries(PLACE_MEDIA)) {
+      expect(media.imageUrl, `${id} host`).toMatch(/^https:\/\/upload\.wikimedia\.org\//);
+      expect(media.imageUrl, `${id} no query string`).not.toContain('?');
+      const width = Number(/\/(\d+)px-/.exec(media.imageUrl)?.[1]);
+      expect(THUMB_WIDTHS).toContain(width);
+    }
+  });
+
+  it('rounds a requested thumbnail up to a width Commons renders', () => {
+    const url = PLACE_MEDIA['osaka-castle']!.imageUrl;
+    // Commons answers 400 for anything off the bucket list, so 64 must not go out as 64
+    expect(thumbAt(url, 64)).toContain('/120px-');
+    expect(thumbAt(url, 120)).toContain('/120px-');
+    expect(thumbAt(url, 121)).toContain('/250px-');
+    expect(thumbAt(url, 960)).toContain('/960px-');
+    expect(thumbAt(url, 5000)).toContain('/1920px-');
+    expect(thumbAt('not-a-thumb-url', 120)).toBe('not-a-thumb-url');
+  });
+
+  it('gives every block on the plan an address to show', () => {
+    for (const block of DEMO_BLOCKS) {
+      expect(addressOf(block), `${block.id} address`).toBeTruthy();
+      expect(addressOf(block), `${block.id} address`).toMatch(/Osaka|Minoh|Ikeda|Suita|Toyonaka/);
+    }
+  });
+
+  it('resolves a re-plan’s added blocks too, which is why media is keyed by place', async () => {
+    const result = await runScenario('weather');
+    const applied = applyDiff(DEMO_BLOCKS, result.ops, { tripId: DEMO_TRIP.id });
+    // applyDiff rebuilds added blocks field by field, so anything hung off the
+    // block object would be lost here. Keying on placeId is what survives.
+    for (const block of applied.blocks) {
+      expect(mediaFor(block)?.imageUrl, `${block.id} → ${block.placeId}`).toBeTruthy();
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 7. Why a replacement was picked
+// ---------------------------------------------------------------------------
+
+describe('replacementWhy', () => {
+  const blocksById = new Map(DEMO_BLOCKS.map((b) => [b.id, b]));
+
+  it('fills all four rows for every added block in every diff', () => {
+    for (const key of KEYS) {
+      const scenario = DEMO_SCENARIOS.find((s) => s.key === key)!;
+      const diff = diffFor(key);
+      const adds = diff.ops.filter((o) => o.op.op === 'add');
+      expect(adds.length, `${key} has an added block`).toBeGreaterThan(0);
+
+      for (const entry of adds) {
+        const why = replacementWhy(entry, scenario, diff, DEMO_PREFERENCES, DEMO_MEMBERS, blocksById);
+        expect(why, `${key} ${entry.id}`).not.toBeNull();
+        expect(why!.constraint.length, `${key} constraint`).toBeGreaterThan(20);
+        expect(why!.budget, `${key} budget`).toMatch(/RM/);
+        expect(why!.votes.length, `${key} votes`).toBeGreaterThan(10);
+        // A citation has to be about THIS place — either a chunk the engine
+        // retrieved for this diff, or what the corpus holds about the place
+        // itself. Matching on district or tag was tried and produced quotes
+        // about the wrong landmark, which is the failure this guards.
+        if (why!.source) {
+          const placeId = entry.op.op === 'add' ? entry.op.block.placeId : '';
+          const own = knowledgeFor(placeId);
+          const fromDiff = diff.citations.includes(why!.source);
+          expect(fromDiff || why!.source === own, `${key} ${entry.id} citation provenance`).toBe(
+            true,
+          );
+        }
+      }
+    }
+  });
+
+  it('names the disruption rather than giving a generic reason', () => {
+    const cases: Array<[ScenarioKey, RegExp]> = [
+      ['delay', /cannot start before/i],
+      ['weather', /rain/i],
+      ['closed', /closed on day/i],
+      ['overbudget', /had to come off/i],
+    ];
+    for (const [key, pattern] of cases) {
+      const scenario = DEMO_SCENARIOS.find((s) => s.key === key)!;
+      const diff = diffFor(key);
+      const add = diff.ops.find((o) => o.op.op === 'add')!;
+      const why = replacementWhy(add, scenario, diff, DEMO_PREFERENCES, DEMO_MEMBERS, blocksById)!;
+      expect(why.constraint, key).toMatch(pattern);
+    }
+  });
+
+  it('credits a real interest when there is one, and says so plainly when there is not', () => {
+    const scenario = DEMO_SCENARIOS.find((s) => s.key === 'weather')!;
+    const diff = diffFor('weather');
+    const kuromon = diff.ops.find(
+      (o) => o.op.op === 'add' && o.op.block.placeId === 'kuromon-ichiba',
+    )!;
+    const why = replacementWhy(kuromon, scenario, diff, DEMO_PREFERENCES, DEMO_MEMBERS, blocksById)!;
+    // Jia asked for street food; a covered market answers that
+    expect(why.votes).toMatch(/Jia/);
+
+    // and with nobody's interests to match, it does not pretend otherwise
+    const noInterests = DEMO_PREFERENCES.map((p) => ({ ...p, interests: [], mustDo: null }));
+    const bare = replacementWhy(kuromon, scenario, diff, noInterests, DEMO_MEMBERS, blocksById)!;
+    expect(bare.votes).toMatch(/Nobody asked/);
+  });
+
+  it('returns nothing for ops that are not additions', () => {
+    const diff = diffFor('overbudget');
+    const scenario = DEMO_SCENARIOS.find((s) => s.key === 'overbudget')!;
+    const removal = diff.ops.find((o) => o.op.op === 'remove')!;
+    expect(
+      replacementWhy(removal, scenario, diff, DEMO_PREFERENCES, DEMO_MEMBERS, blocksById),
+    ).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 8. Installable on a phone
+// ---------------------------------------------------------------------------
+
+describe('the web app manifest', () => {
+  const manifest = JSON.parse(
+    readFileSync(new URL('../public/manifest.json', import.meta.url), 'utf8'),
+  );
+
+  it('points at icons that are really there', () => {
+    expect(manifest.name).toContain('Detour');
+    expect(manifest.display).toBe('standalone');
+    expect(manifest.start_url).toBe('/setup');
+
+    const sizes = manifest.icons.map((i: { sizes: string }) => i.sizes);
+    expect(sizes).toContain('192x192');
+    expect(sizes).toContain('512x512');
+
+    for (const icon of manifest.icons) {
+      const file = readFileSync(new URL(`../public${icon.src}`, import.meta.url));
+      // a real PNG, not a placeholder
+      expect(file.subarray(0, 8)).toEqual(
+        Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+      );
+      expect(file.length).toBeGreaterThan(500);
+    }
+  });
+
+  it('keeps every shortcut pointing at a route that exists', () => {
+    for (const shortcut of manifest.shortcuts ?? []) {
+      expect(shortcut.url).toMatch(new RegExp(`^/t/${DEMO_TRIP.slug}`));
+    }
+  });
+});
+
+describe('what the corpus holds about each place', () => {
+  const flatten = (text: string): string =>
+    text
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '');
+
+  it('files every entry under a place its own text actually names', () => {
+    for (const [id, chunk] of Object.entries(PLACE_KNOWLEDGE)) {
+      const place = DEMO_PLACES.find((p) => p.id === id);
+      expect(place, `${id} is a real place`).toBeDefined();
+      const longest = place!.name
+        .split(/[^\p{L}\p{N}]+/u)
+        .map(flatten)
+        .filter((w) => w.length >= 5)
+        .sort((a, b) => b.length - a.length)[0];
+      // an entry filed under the wrong place is worse than no entry at all
+      expect(flatten(chunk.chunk), `${id} names itself`).toContain(longest);
+      expect(chunk.source, `${id} source`).toMatch(/^Wikipedia \//);
+      expect(chunk.url, `${id} url`).toMatch(/^https:\/\/en\.wikipedia\.org\//);
+    }
+  });
+
+  it('has nothing to say about places nobody has written up, and says nothing', () => {
+    // there is no English Wikipedia article for Kuromon Ichiba, so the row on
+    // screen stays empty rather than quoting a sentence about the next street
+    expect(knowledgeFor('kuromon-ichiba')).toBeNull();
+    expect(knowledgeFor('not-a-place')).toBeNull();
+  });
+
+  it('prefers what the pipeline attached over what we hold', () => {
+    const cited = DEMO_BLOCKS.find((b) => b.sourceCitation)!;
+    expect(citationFor(cited)).toBe(cited.sourceCitation);
+
+    const uncited = DEMO_BLOCKS.find((b) => !b.sourceCitation && PLACE_KNOWLEDGE[b.placeId ?? ''])!;
+    expect(citationFor(uncited)?.source).toMatch(/^Wikipedia \//);
   });
 });

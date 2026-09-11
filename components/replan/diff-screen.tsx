@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, Check, Cpu, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Check, Cpu, MessageSquareQuote, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
@@ -16,6 +16,7 @@ import {
   formatDelta,
   formatRM,
   immovableIdsAt,
+  replacementWhy,
   SCENARIOS_BY_KEY,
   type ScenarioKey,
 } from '@/lib/demo-data';
@@ -31,9 +32,18 @@ import { cn } from '@/lib/utils';
  * what the ops claim. Accepting writes those blocks into state, so the itinerary
  * really changes.
  */
-export function DiffScreen({ scenarioKey, onBack }: { scenarioKey: ScenarioKey; onBack: () => void }) {
+export function DiffScreen({
+  scenarioKey,
+  note,
+  onBack,
+}: {
+  scenarioKey: ScenarioKey;
+  /** what the captain typed, when they came in through the free-text box */
+  note?: string | null;
+  onBack: () => void;
+}) {
   const router = useRouter();
-  const { blocks, constraints, acceptDiff } = useTrip();
+  const { blocks, constraints, preferences, members, acceptDiff } = useTrip();
   const scenario = SCENARIOS_BY_KEY.get(scenarioKey)!;
   const diff = diffFor(scenarioKey);
 
@@ -121,6 +131,21 @@ export function DiffScreen({ scenarioKey, onBack }: { scenarioKey: ScenarioKey; 
         Other triggers
       </button>
 
+      {note ? (
+        <div className="mt-3 animate-rise rounded-card border border-accent/30 bg-accent-soft/40 p-3">
+          <p className="flex items-center gap-1.5 label-caps text-accent-ink">
+            <MessageSquareQuote className="size-3.5" />
+            You said
+          </p>
+          <p className="mt-1.5 text-sm leading-snug font-medium text-ink">“{note}”</p>
+          <p className="mt-2 text-[0.6875rem] leading-relaxed text-ink-soft">
+            In production the model reads this and classifies it into one of the four disruption
+            types, filling in the payload the rule layer needs. Here it has been routed to the
+            delay case so you can see the rest of the flow.
+          </p>
+        </div>
+      ) : null}
+
       <header className="mt-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <p className="label-caps text-accent-ink">{scenario.headline}</p>
@@ -179,6 +204,7 @@ export function DiffScreen({ scenarioKey, onBack }: { scenarioKey: ScenarioKey; 
             key={entry.id}
             entry={entry}
             block={entry.op.op === 'add' ? undefined : blocksById.get(entry.op.blockId)}
+            why={replacementWhy(entry, scenario, diff, preferences, members, blocksById)}
             checked={ticked.has(entry.id)}
             onToggle={() => toggle(entry.id)}
           />

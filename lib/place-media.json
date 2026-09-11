@@ -1,0 +1,212 @@
+{
+  "abeno-harukas": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/%E3%81%82%E3%81%B9%E3%81%AE%E3%83%8F%E3%83%AB%E3%82%AB%E3%82%B9.jpg/960px-%E3%81%82%E3%81%B9%E3%81%AE%E3%83%8F%E3%83%AB%E3%82%AB%E3%82%B9.jpg",
+    "license": "CC0",
+    "artist": "加茂川の民",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:%E3%81%82%E3%81%B9%E3%81%AE%E3%83%8F%E3%83%AB%E3%82%AB%E3%82%B9.jpg",
+    "address": "43 Abenosuji 1, Abeno Ward, Osaka 545-8545"
+  },
+  "amerikamura": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Amerikamura.jpg/960px-Amerikamura.jpg",
+    "license": "CC BY-SA 3.0",
+    "artist": "BradBeattie at English Wikipedia",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Amerikamura.jpg",
+    "address": "炭屋町筋, Chūō Ward, Osaka 542-0086"
+  },
+  "den-den-town": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Nipponbashi_Osaka_Japan01-r.jpg/960px-Nipponbashi_Osaka_Japan01-r.jpg",
+    "license": "CC BY 2.5",
+    "artist": "Oilstreet",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Nipponbashi_Osaka_Japan01-r.jpg",
+    "address": "Nipponbashi 4, Naniwa Ward, Osaka 556-0005"
+  },
+  "dotonbori": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Osaka_Dotonbori_Ebisu_Bridge.jpg/960px-Osaka_Dotonbori_Ebisu_Bridge.jpg",
+    "license": "CC BY-SA 3.0",
+    "artist": "Type specimen",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Osaka_Dotonbori_Ebisu_Bridge.jpg",
+    "address": "Ebisubashi-suji Shopping Street, Chūō Ward, Osaka 542-0071"
+  },
+  "expo70-park": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/131116_Expo_Commemoration_Park_Suita_Osaka_pref_Japan04s3.jpg/960px-131116_Expo_Commemoration_Park_Suita_Osaka_pref_Japan04s3.jpg",
+    "license": "CC BY 2.5",
+    "artist": "663highland",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:131116_Expo_Commemoration_Park_Suita_Osaka_pref_Japan04s3.jpg",
+    "address": "Chūgoku Expressway, Suita 565-0825"
+  },
+  "instant-ramen-museum": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Ikeda_-_Osaka_-_Giappone.jpg/960px-Ikeda_-_Osaka_-_Giappone.jpg",
+    "license": "CC BY-SA 4.0",
+    "artist": "Luca.M96",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Ikeda_-_Osaka_-_Giappone.jpg",
+    "address": "Itami-Ikeda Line, Ikeda 563-0042"
+  },
+  "kaiyukan": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Kaiy%C5%ABkan.jpg/960px-Kaiy%C5%ABkan.jpg",
+    "license": "CC0",
+    "artist": "Sakai Yayoi",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Kaiy%C5%ABkan.jpg",
+    "address": "一条通, Minato Ward, Osaka 552-0022"
+  },
+  "katsuoji": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Katsuo-ji2336.jpg/960px-Katsuo-ji2336.jpg",
+    "license": "CC BY 2.1 jp",
+    "artist": "Jnn",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Katsuo-ji2336.jpg",
+    "address": "Ibaraki Nose Line, Minoh 562-8508"
+  },
+  "kuromon-ichiba": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Kuromon-ichiba_in_201408.JPG/960px-Kuromon-ichiba_in_201408.JPG",
+    "license": "CC BY-SA 4.0",
+    "artist": "Mc681",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Kuromon-ichiba_in_201408.JPG",
+    "address": "1-21-16 Kuromon-Ichiba Market, Chūō Ward, Osaka 542-0073"
+  },
+  "minoo-park": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Katsuo-ji2336.jpg/960px-Katsuo-ji2336.jpg",
+    "license": "CC BY 2.1 jp",
+    "artist": "Jnn",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Katsuo-ji2336.jpg",
+    "address": "Toyonaka Kameoka Line, Minoh 562-0002"
+  },
+  "miraiza-osakajo": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Osaka_Castle_01bs3200.jpg/960px-Osaka_Castle_01bs3200.jpg",
+    "license": "CC BY 2.5",
+    "artist": "663highland",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Osaka_Castle_01bs3200.jpg",
+    "address": "笹の小径, Chūō Ward, Osaka 540-0002"
+  },
+  "nakanoshima-park": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Osaka_Central_Public_Hall_in_201409.JPG/960px-Osaka_Central_Public_Hall_in_201409.JPG",
+    "license": "CC BY-SA 4.0",
+    "artist": "Mc681",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Osaka_Central_Public_Hall_in_201409.JPG",
+    "address": "1 Kitahama 2-chome, Chūō Ward, Osaka 541-0041"
+  },
+  "nakazakicho": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Kita-ku_in_Osaka_City.svg/960px-Kita-ku_in_Osaka_City.svg.png",
+    "license": "CC BY-SA 3.0",
+    "artist": "Lincun",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Kita-ku_in_Osaka_City.svg",
+    "address": "神明筋, Kita Ward, Osaka 530-0015"
+  },
+  "namba-sennichimae": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Namba_Station.JPG/960px-Namba_Station.JPG",
+    "license": "CC BY-SA 3.0",
+    "artist": "Own work",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Namba_Station.JPG",
+    "address": "Namba Sennichimae Shopping St, Chūō Ward, Osaka 542-0074"
+  },
+  "nmao": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/The_National_Museum_of_Art%2C_Osaka_2026.jpg/960px-The_National_Museum_of_Art%2C_Osaka_2026.jpg",
+    "license": "CC0",
+    "artist": "Sakai Yayoi",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:The_National_Museum_of_Art,_Osaka_2026.jpg",
+    "address": "55 Nakanoshima 4-chome, Kita Ward, Osaka 530-6103"
+  },
+  "osaka-castle": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Osaka_Castle_03bs3200.jpg/960px-Osaka_Castle_03bs3200.jpg",
+    "license": "CC BY 2.5",
+    "artist": "663highland",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Osaka_Castle_03bs3200.jpg",
+    "address": "1 Osakajo, Chūō Ward, Osaka 540-0002"
+  },
+  "osaka-museum-history": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Osaka_Museum_of_History_20150921.jpg/960px-Osaka_Museum_of_History_20150921.jpg",
+    "license": "CC BY-SA 4.0",
+    "artist": "そらみみ (Soramimi)",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Osaka_Museum_of_History_20150921.jpg",
+    "address": "20 Otemae 4-chome, Chūō Ward, Osaka 540-0008"
+  },
+  "osaka-science-museum": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Osaka_Science_Museum_2020_January.jpg/960px-Osaka_Science_Museum_2020_January.jpg",
+    "license": "CC BY-SA 4.0",
+    "artist": "Chainwit.",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Osaka_Science_Museum_2020_January.jpg",
+    "address": "1 Nakanoshima 4-chome, Kita Ward, Osaka 530-6103"
+  },
+  "osaka-tenmangu": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Osaka_Tenmangu01n3390.jpg/960px-Osaka_Tenmangu01n3390.jpg",
+    "license": "CC BY 2.5",
+    "artist": "663highland",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Osaka_Tenmangu01n3390.jpg",
+    "address": "8 Tenjinbashi 2-chome, Kita Ward, Osaka 530-8580"
+  },
+  "shinsekai-tsutenkaku": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/New_Tsutenkaku%2C_Osaka.jpg/960px-New_Tsutenkaku%2C_Osaka.jpg",
+    "license": "CC0",
+    "artist": "Sakai Yayoi",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:New_Tsutenkaku,_Osaka.jpg",
+    "address": "6 Shinsekai Market, Naniwa Ward, Osaka 556-0002"
+  },
+  "shitennoji": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Shitennoji_%26_Abeno_Harukas.jpg/960px-Shitennoji_%26_Abeno_Harukas.jpg",
+    "license": "CC BY-SA 3.0",
+    "artist": "名古屋太郎",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Shitennoji_%26_Abeno_Harukas.jpg",
+    "address": "18 Shitennōji 1, Tennōji Ward, Osaka 543-0051"
+  },
+  "sumiyoshi-taisha": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Sumiyoshi-taisha%2C_keidai-2.jpg/960px-Sumiyoshi-taisha%2C_keidai-2.jpg",
+    "license": "CC0",
+    "artist": "Saigen Jiro",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Sumiyoshi-taisha,_keidai-2.jpg",
+    "address": "89 Sumiyoshi 2, 558-0045"
+  },
+  "tempozan-ferris-wheel": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Grand_ferris_wheel_of_Tempozan_Harbor_Village_2.jpg/960px-Grand_ferris_wheel_of_Tempozan_Harbor_Village_2.jpg",
+    "license": "CC BY-SA 4.0",
+    "artist": "そらみみ",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Grand_ferris_wheel_of_Tempozan_Harbor_Village_2.jpg",
+    "address": "Kaigandori 1-chome, Minato Ward, Osaka 552-0022"
+  },
+  "tempozan-marketplace": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Grand_ferris_wheel_of_Tempozan_Harbor_Village_2.jpg/960px-Grand_ferris_wheel_of_Tempozan_Harbor_Village_2.jpg",
+    "license": "CC BY-SA 4.0",
+    "artist": "そらみみ",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Grand_ferris_wheel_of_Tempozan_Harbor_Village_2.jpg",
+    "address": "1-1-10 一条通, Minato Ward, Osaka 552-0022"
+  },
+  "tenjinbashisuji": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Kita-ku_in_Osaka_City.svg/960px-Kita-ku_in_Osaka_City.svg.png",
+    "license": "CC BY-SA 3.0",
+    "artist": "Lincun",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Kita-ku_in_Osaka_City.svg",
+    "address": "北辰橋筋, Kita Ward, Osaka 530-0034"
+  },
+  "tennoji-park": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Keitakuen_Garden_and_Abeno_Harukas.jpg/960px-Keitakuen_Garden_and_Abeno_Harukas.jpg",
+    "license": "CC0",
+    "artist": "Sakai Yayoi",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:Keitakuen_Garden_and_Abeno_Harukas.jpg",
+    "address": "Waki Bridge, Tennōji Ward, Osaka 543-0063"
+  },
+  "umeda-food-hall": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/2018_Umeda_Sky_Building.jpg/960px-2018_Umeda_Sky_Building.jpg",
+    "license": "CC BY-SA 4.0",
+    "artist": "Kakidai",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:2018_Umeda_Sky_Building.jpg",
+    "address": "市道九条梅田線, Kita Ward, Osaka 530-8558"
+  },
+  "umeda-sky-building": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/2018_Umeda_Sky_Building.jpg/960px-2018_Umeda_Sky_Building.jpg",
+    "license": "CC BY-SA 4.0",
+    "artist": "Kakidai",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:2018_Umeda_Sky_Building.jpg",
+    "address": "Osaka Itami Line, Kita Ward, Osaka 531-0076"
+  },
+  "universal-citywalk": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/USJ_5years.JPG/960px-USJ_5years.JPG",
+    "license": "CC BY-SA 3.0",
+    "artist": "Momopy~commonswiki",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:USJ_5years.JPG",
+    "address": "2-1-33 Canyon Road, Konohana Ward, Osaka 554-0024"
+  },
+  "usj": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/USJ_5years.JPG/960px-USJ_5years.JPG",
+    "license": "CC BY-SA 3.0",
+    "artist": "Momopy~commonswiki",
+    "fileUrl": "https://commons.wikimedia.org/wiki/File:USJ_5years.JPG",
+    "address": "2-1-33 Amity Avenue, Konohana Ward, Osaka 554-0031"
+  }
+}

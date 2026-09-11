@@ -1,9 +1,12 @@
 'use client';
 
-import { CloudRain, DoorClosed, PlaneLanding, Wallet } from 'lucide-react';
+import { ArrowRight, CloudRain, DoorClosed, PlaneLanding, Wallet } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/field';
 import { DEMO_SCENARIOS, diffFor, type ScenarioKey } from '@/lib/demo-data';
 
 const ICONS: Record<ScenarioKey, LucideIcon> = {
@@ -20,7 +23,13 @@ const ICONS: Record<ScenarioKey, LucideIcon> = {
  * gets here from a flight webhook or a weather poll; §10 keeps those out of a
  * demo on purpose, so the captain presses the button instead.
  */
-export function ScenarioPicker({ onPick }: { onPick: (key: ScenarioKey) => void }) {
+export function ScenarioPicker({
+  onPick,
+}: {
+  onPick: (key: ScenarioKey, note?: string) => void;
+}) {
+  const [note, setNote] = useState('');
+
   return (
     <div className="px-4 py-5">
       <p className="label-caps text-ink-faint">Re-plan</p>
@@ -60,6 +69,37 @@ export function ScenarioPicker({ onPick }: { onPick: (key: ScenarioKey) => void 
           );
         })}
       </div>
+
+      <form
+        className="mt-3"
+        onSubmit={(event) => {
+          event.preventDefault();
+          const text = note.trim();
+          if (text) onPick('delay', text);
+        }}
+      >
+        <label htmlFor="freeform" className="label-caps text-ink-faint">
+          Or say what happened
+        </label>
+        <div className="mt-1.5 flex gap-2">
+          <Input
+            id="freeform"
+            value={note}
+            onChange={(event) => setNote(event.target.value.slice(0, 140))}
+            placeholder="Something else happened…"
+            className="flex-1"
+          />
+          <Button type="submit" variant="accent" disabled={note.trim().length === 0}>
+            <ArrowRight className="size-4" />
+            <span className="sr-only">Re-plan from this</span>
+          </Button>
+        </div>
+        <p className="mt-1.5 text-[0.6875rem] leading-relaxed text-ink-faint">
+          In production this goes to the model, which classifies it into one of the four
+          disruption types above and fills in the payload — the hours of a delay, the place that
+          shut, the new ceiling. Here it is routed to the delay diff so the flow is walkable.
+        </p>
+      </form>
 
       <p className="mt-4 text-[0.6875rem] leading-relaxed text-ink-faint">
         Each diff was produced by <code className="font-mono">lib/replan.ts</code> against the

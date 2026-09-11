@@ -3,7 +3,8 @@
 import { Footprints, Lock, Sparkles } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
-import { durationLabel, endTime, formatRM } from '@/lib/demo-data';
+import { PlaceImage } from '@/components/itinerary/place-image';
+import { durationLabel, endTime, formatRM, mediaFor } from '@/lib/demo-data';
 import type { Block } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
@@ -24,7 +25,7 @@ export function BlockCard({
   return (
     <li>
       {walk !== null && walk > 0 ? (
-        <div className="flex items-center gap-1.5 py-1.5 pl-[4.25rem] text-xs text-ink-faint">
+        <div className="flex items-center gap-1.5 py-1.5 pl-[3.5rem] text-xs text-ink-faint">
           <Footprints className="size-3.5" />
           <span>~{walk} min walk</span>
         </div>
@@ -41,10 +42,17 @@ export function BlockCard({
           changed && 'animate-rise',
         )}
       >
-        <div className="w-14 shrink-0 pt-0.5">
+        <div className="w-11 shrink-0 pt-0.5">
           <p className="tabular text-sm leading-tight font-semibold">{block.startTime}</p>
           <p className="tabular text-[0.6875rem] text-ink-faint">{endTime(block)}</p>
         </div>
+
+        <PlaceImage
+          media={mediaFor(block)}
+          alt=""
+          width={250}
+          className="size-16 shrink-0"
+        />
 
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">

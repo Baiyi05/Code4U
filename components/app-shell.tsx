@@ -52,7 +52,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <main className="flex-1 pb-24">{children}</main>
 
-      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-card/95 backdrop-blur-md">
+      {/* viewportFit is 'cover', so the nav pads itself past the home indicator */}
+      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl">
           {TABS.map((tab) => {
             const href = `${base}${tab.href}`;

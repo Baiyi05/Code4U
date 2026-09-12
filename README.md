@@ -1,8 +1,8 @@
-# **Detour4U by [Team Name]**
+# **Detour4U by Code4U**
 
-**Team:** [Member 1], [Member 2], [Member 3], [Member 4]
+**Team:** Koo Ming Sheng, Lee Jia Quan, Au Yu Xuan, Siti Sarah Liyana binti Zaini
 
-**Problem Statement:** Travel Planner
+**Problem Statement:** Planning an Escape
 
 **Video Presentation:** [Unlisted YouTube Link]
 
@@ -77,34 +77,141 @@ It accepts that group trips have one planner and several passengers, so it gives
 
 ### **2.2 Ideation Boards**
 
-<!-- Replace the placeholders below with your own images. Keep the captions. -->
+These are the cleaned-up versions of what we worked through — the branches we abandoned are kept in, because they are the part that shows the reasoning.
 
-![Mindmap](docs/images/mindmap.png)
+**Mindmap — our first session**
 
-*Our first session: everything that makes group trips painful, before we knew which part we were solving. The right-hand branch — "what happens when the plan breaks" — is the one that survived.*
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#E5EAF7','primaryTextColor':'#111A3D','primaryBorderColor':'#1D3FA0','lineColor':'#5B79D6','secondaryColor':'#FFFFFF','tertiaryColor':'#F4F6FB','fontSize':'14px'}}}%%
+flowchart LR
+    R(("Group trips<br/>are stressful"))
+    M["Money"]
+    C["Coordination"]
+    P["The plan itself"]
+    D["During the trip"]
 
-![Problem tree](docs/images/problem-tree.png)
+    R --> M & C & P & D
+    M --> M1["Nobody knows the running total"]
+    M --> M2["Someone always fronts the cash"]
+    M --> M3["One person's ceiling is lower<br/>and never says so"]
+    C --> C1["Everyone replies 'up to you'"]
+    C --> C2["Forms go unfilled"]
+    C --> C3["One person does 90% of it"]
+    P --> P1["Five tabs and a spreadsheet"]
+    P --> P2["Decisions buried in a chat"]
+    D --> D1["Flight delayed"]
+    D --> D2["It rains all afternoon"]
+    D --> D3["Closed when you get there"]
+    D --> D4["No app helps after this point"]
 
-*Working backwards from "group trips are stressful" to root causes. Two causes turned out to have no existing tooling at all: the asymmetric workload, and recovery after disruption.*
+    classDef box fill:#FFFFFF,stroke:#C3CAD6,color:#111A3D
+    classDef branch fill:#E5EAF7,stroke:#1D3FA0,stroke-width:2px,color:#111A3D
+    classDef root fill:#111A3D,stroke:#111A3D,color:#FFFFFF
+    classDef win fill:#E9F1EE,stroke:#2A6350,stroke-width:2px,color:#111A3D
+    class R root
+    class M,C,P branch
+    class D win
+    class M1,M2,M3,C1,C2,C3,P1,P2,D1,D2,D3 box
+    class D4 win
+```
 
-![User flow](docs/images/user-flow.png)
+*Everything that makes group trips painful, before we knew which part we were solving. The "During the trip" branch is the one that survived — it was the only branch where no existing tool had anything to offer.*
 
-*The lifecycle we settled on. Note the arrow returning from "Live" to "Generate" — every other travel app stops at "Commit", and that returning arrow is our product.*
+**Problem tree — working back to root causes**
 
-![Idea evolution](docs/images/iteration.png)
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#E5EAF7','primaryTextColor':'#111A3D','primaryBorderColor':'#1D3FA0','lineColor':'#5B79D6','secondaryColor':'#FFFFFF','tertiaryColor':'#F4F6FB','fontSize':'14px'}}}%%
+flowchart TD
+    E1["Organiser burns out<br/>and gets blamed"] --- CORE
+    E2["Group ends up<br/>somewhere nobody chose"] --- CORE
+    E3["Trip goes over budget"] --- CORE
+    E4["A broken day stays broken"] --- CORE
+    CORE["CORE PROBLEM<br/>Planning a group trip is four jobs<br/>and no tool holds them together"]
+    CORE --- R1["Tools assume symmetric collaboration<br/>— real groups are not symmetric"]
+    CORE --- R2["Budget is tallied afterwards,<br/>not used as a constraint"]
+    CORE --- R3["An itinerary is modelled as a document,<br/>not as something that can change"]
+    CORE --- R4["Work is split across four apps<br/>and a group chat"]
 
-*How the concept moved: AI autopilot → democratic voting → Captain cockpit. The two crossed-out branches are ideas D and E in the table above.*
+    classDef effect fill:#FFFFFF,stroke:#C3CAD6,color:#111A3D
+    classDef core fill:#111A3D,stroke:#111A3D,color:#FFFFFF
+    classDef cause fill:#E5EAF7,stroke:#1D3FA0,stroke-width:2px,color:#111A3D
+    classDef gap fill:#E9F1EE,stroke:#2A6350,stroke-width:2px,color:#111A3D
+    class E1,E2,E3,E4 effect
+    class CORE core
+    class R2,R4 cause
+    class R1,R3 gap
+```
+
+*Effects on top, root causes below. The two causes in green had no existing tooling at all — the asymmetric workload, and treating an itinerary as a fixed document. Those two became the product.*
+
+**User flow — and the arrow that makes it a product**
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#E5EAF7','primaryTextColor':'#111A3D','primaryBorderColor':'#1D3FA0','lineColor':'#5B79D6','secondaryColor':'#FFFFFF','tertiaryColor':'#F4F6FB','fontSize':'14px'}}}%%
+flowchart LR
+    S1["Trip Setup<br/>Captain · desktop"]
+    S2["Preference Intake<br/>Members · phone · 60s"]
+    S3["Taste Profile<br/>consensus + conflicts"]
+    S4["Itinerary + Why this<br/>Captain decides"]
+    S5["Vote & Lock<br/>plan committed"]
+    S6["On the trip"]
+    S7["Re-plan Diff<br/>phone · at the airport"]
+
+    S1 --> S2 --> S3 --> S4 --> S5 --> S6
+    S6 -- "flight delayed · rain ·<br/>closed · over budget" --> S7
+    S7 -- "accept, whole or in part<br/>locked blocks never move" --> S4
+
+    classDef box fill:#FFFFFF,stroke:#C3CAD6,color:#111A3D
+    classDef hi fill:#E5EAF7,stroke:#1D3FA0,stroke-width:2px,color:#111A3D
+    class S1,S2,S3,S5,S6 box
+    class S4,S7 hi
+    linkStyle 6,7 stroke:#1D3FA0,stroke-width:2.5px,color:#1D3FA0
+```
+
+*Every other travel app ends at "plan committed". The two blue boxes and the return arrow between them are the part nobody else has.*
+
+**Idea evolution — including what we dropped**
+
+```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#E5EAF7','primaryTextColor':'#111A3D','primaryBorderColor':'#1D3FA0','lineColor':'#5B79D6','secondaryColor':'#FFFFFF','tertiaryColor':'#F4F6FB','fontSize':'14px'}}}%%
+flowchart TD
+    V1["ROUND 1<br/>AI autopilot:<br/>the AI plans, everyone follows"]
+    X1["DROPPED<br/>No answer to 'what if it's wrong?'<br/>Nobody hands over a trip they paid for"]
+    V2["ROUND 2<br/>Democratic consensus:<br/>the group votes, majority decides"]
+    X2["DROPPED<br/>Deadlocks. Needs everyone online.<br/>Every tie-break we invented was<br/>'the organiser decides' in disguise"]
+    V3["ROUND 3 · CHOSEN<br/>Captain cockpit +<br/>60-second member input"]
+    K["KEPT FROM ROUND 1<br/>AI autonomy, but only mid-trip —<br/>at an airport, speed beats consensus"]
+    R1["RAG over the group's own preferences"]
+    XR["DROPPED — the data is ~2KB.<br/>A vector store adds latency and a<br/>failure mode for no quality gain"]
+    R2["CHOSEN<br/>RAG over local travel writing,<br/>so every recommendation is citable"]
+
+    V1 --> X1 --> V2 --> X2 --> V3
+    V1 -.-> K
+    K -.-> V3
+    R1 --> XR --> R2
+
+    classDef dropped fill:#F7E7E9,stroke:#9E2F41,stroke-dasharray:5 4,color:#111A3D
+    classDef tried fill:#FFFFFF,stroke:#C3CAD6,color:#111A3D
+    classDef chosen fill:#E9F1EE,stroke:#2A6350,stroke-width:2px,color:#111A3D
+    classDef kept fill:#E5EAF7,stroke:#1D3FA0,stroke-width:2px,color:#111A3D
+    class X1,X2,XR dropped
+    class V1,V2,R1 tried
+    class V3,R2 chosen
+    class K kept
+```
+
+*Two full pivots. The middle one matters most: dropping majority voting is what produced our design principle — group input is required, group decision-making is not.*
 
 ### **2.3 Mentor Consultation**
 
 | Date | Mentor | Feedback Received | What Was Changed |
 | :---- | :---- | :---- | :---- |
-| 11/09 | [Mentor name] | The video should show the *flow* rather than describe features — and have you considered making this a Progressive Web App? | Acted on both. The video is now structured as one continuous walkthrough of the demo script rather than a feature tour. The PWA suggestion changed our thinking more than we expected: the moment a traveller most needs a re-plan — delayed at a foreign airport, no roaming — is the moment they have the worst connectivity. Offline capability is on-thesis for this product, not a nice-to-have. We shipped an installable manifest for the prototype and made offline-first the first priority of the build phase (see §5). |
-| 11/09 | [Mentor name] | Itinerary cards are too abstract — show a photo and an address like a real travel app. | Acted on. Blocks now carry an image and a street address: a thumbnail in the itinerary list, a full-width image and address in the block detail. It cost us very little and made the difference between a wireframe and something a user would trust. |
-| 11/09 | [Mentor name] | "Swap" needs more detail — what actually happens when I press it? | Acted on. Swap now opens a panel of alternative candidates for that slot, each with its cost difference, which member's interests it matches, and a cited reason. This also surfaced something already true in our architecture but invisible in the UI: the model never invents a place, it picks from a filtered candidate set. Swap is that set, shown to the user. |
-| 11/09 | [Mentor name] | When a re-plan adds a new place, explain what decided it. | Acted on. Every ADDED row in the diff now expands to show why that replacement was chosen: which constraint ruled out the original (closed, raining, over budget), the cost difference, whose interests it matches, and the source of the recommendation. Previously the reasoning existed in the engine but the user never saw it. |
-| 11/09 | [Mentor name] | What happens to a place most of the group has voted against? There should be a backup. | Acted on, and it closed a real gap — voting was decorative until now. A block with a majority thumbs-down is flagged in the itinerary and offers the Captain alternatives. We deliberately built this on the same candidate panel as Swap: the underlying question ("what else could go in this slot, and why") is identical, so one mechanism serves both. |
-| 11/09 | [Mentor name] | Let the user type what happened instead of only picking from preset cards. | Acted on for the prototype as a free-text field alongside the four preset triggers, with the typed text carried through to the diff. We were honest with the mentor that full natural-language parsing of an arbitrary disruption into a typed, constrained re-plan is a build-phase problem, not a two-day one — so the prototype shows the interaction and the build plan owns the parsing. |
+| 11/09 | Mah Qing Fung | The video should show the *flow* rather than describe features — and have you considered making this a Progressive Web App? | Acted on both. The video is now structured as one continuous walkthrough of the demo script rather than a feature tour. The PWA suggestion changed our thinking more than we expected: the moment a traveller most needs a re-plan — delayed at a foreign airport, no roaming — is the moment they have the worst connectivity. Offline capability is on-thesis for this product, not a nice-to-have. We shipped an installable manifest for the prototype and made offline-first the first priority of the build phase (see §5). |
+| 11/09 | Mah Qing Fung | Itinerary cards are too abstract — show a photo and an address like a real travel app. | Acted on. Blocks now carry an image and a street address: a thumbnail in the itinerary list, a full-width image and address in the block detail. It cost us very little and made the difference between a wireframe and something a user would trust. |
+| 11/09 | Mah Qing Fung | "Swap" needs more detail — what actually happens when I press it? | Acted on. Swap now opens a panel of alternative candidates for that slot, each with its cost difference, which member's interests it matches, and a cited reason. This also surfaced something already true in our architecture but invisible in the UI: the model never invents a place, it picks from a filtered candidate set. Swap is that set, shown to the user. |
+| 11/09 | Mah Qing Fung | When a re-plan adds a new place, explain what decided it. | Acted on. Every ADDED row in the diff now expands to show why that replacement was chosen: which constraint ruled out the original (closed, raining, over budget), the cost difference, whose interests it matches, and the source of the recommendation. Previously the reasoning existed in the engine but the user never saw it. |
+| 11/09 | Mah Qing Fung | What happens to a place most of the group has voted against? There should be a backup. | Acted on, and it closed a real gap — voting was decorative until now. A block with a majority thumbs-down is flagged in the itinerary and offers the Captain alternatives. We deliberately built this on the same candidate panel as Swap: the underlying question ("what else could go in this slot, and why") is identical, so one mechanism serves both. |
+| 11/09 | Mah Qing Fung | Let the user type what happened instead of only picking from preset cards. | Acted on for the prototype as a free-text field alongside the four preset triggers, with the typed text carried through to the diff. We were honest with the mentor that full natural-language parsing of an arbitrary disruption into a typed, constrained re-plan is a build-phase problem, not a two-day one — so the prototype shows the interaction and the build plan owns the parsing. |
 
 ---
 
@@ -203,24 +310,35 @@ The situation that most needs a re-plan — delayed at a foreign airport with no
 Three sources run **in parallel** into an assembly step — this is not a four-layer stack.
 
 ```mermaid
+%%{init: {'theme':'base','themeVariables':{'primaryColor':'#E5EAF7','primaryTextColor':'#111A3D','primaryBorderColor':'#1D3FA0','lineColor':'#5B79D6','secondaryColor':'#FFFFFF','tertiaryColor':'#F4F6FB','fontSize':'14px'}}}%%
 flowchart TD
-    IN["Trip input<br/>budget · dates · group preferences"]
-    F["<b>Facts</b><br/>Google Places, pre-fetched<br/>hours · price · location"]
-    T["<b>Taste</b><br/>pgvector RAG over<br/>Wikivoyage + local writing"]
-    C["<b>Constraints</b><br/>deterministic rule engine<br/>budget · time · locks"]
-    L["<b>Assembly</b><br/>LLM, structured output only"]
-    V["Zod + post-validation<br/>every placeId must exist in the candidate set"]
-    O["Itinerary block<br/>+ expandable “Why this” with citation"]
+    IN["Trip input — budget, dates, group preferences"]
+    F["LAYER 1 · FACTS<br/>Google Places, pre-fetched<br/>hours · price · location"]
+    T["LAYER 2 · TASTE<br/>pgvector RAG<br/>Wikivoyage + local writing"]
+    C["LAYER 3 · CONSTRAINTS<br/>deterministic rule engine<br/>budget · time · locks"]
+    L["LAYER 4 · ASSEMBLY<br/>LLM, structured output only"]
+    V["Zod + post-validation<br/>every placeId must exist<br/>in the candidate set"]
+    O["Itinerary block<br/>+ expandable Why this, with citation"]
 
-    IN --> F & T & C
+    IN --> F
+    IN --> T
+    IN --> C
     F -- "facts" --> L
     T -- "taste + citation" --> L
     C -- "hard limits" --> L
-    L --> V --> O
-    T -. "✕ never supplies hours or price" .-> F
+    L --> V
+    V --> O
+    T -. "never supplies hours or price" .-> F
 
-    style T fill:#E5EAF7,stroke:#1D3FA0,stroke-width:2px
-    style V fill:#F7E7E9,stroke:#9E2F41,stroke-width:2px
+    classDef box fill:#FFFFFF,stroke:#C3CAD6,stroke-width:1px,color:#111A3D
+    classDef hi fill:#E5EAF7,stroke:#1D3FA0,stroke-width:2px,color:#111A3D
+    classDef warn fill:#F7E7E9,stroke:#9E2F41,stroke-width:2px,color:#111A3D
+    classDef dark fill:#111A3D,stroke:#111A3D,color:#FFFFFF
+    class IN,F,C box
+    class T,O hi
+    class V warn
+    class L dark
+    linkStyle 9 stroke:#9E2F41,stroke-width:2px,color:#9E2F41
 ```
 
 The dashed crossed edge is the most important rule in the diagram: **retrieval never supplies opening hours or prices.** Those are the facts a user checks, so they come from an API or not at all.

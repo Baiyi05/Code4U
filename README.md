@@ -165,7 +165,6 @@ flowchart LR
     classDef hi fill:#E5EAF7,stroke:#1D3FA0,stroke-width:2px,color:#111A3D
     class S1,S2,S3,S5,S6 box
     class S4,S7 hi
-    linkStyle 6,7 stroke:#1D3FA0,stroke-width:2.5px,color:#1D3FA0
 ```
 
 *Every other travel app ends at "plan committed". The two blue boxes and the return arrow between them are the part nobody else has.*
@@ -328,7 +327,7 @@ flowchart TD
     C -- "hard limits" --> L
     L --> V
     V --> O
-    T -. "never supplies hours or price" .-> F
+    T -. "✕ never supplies hours or price" .-> F
 
     classDef box fill:#FFFFFF,stroke:#C3CAD6,stroke-width:1px,color:#111A3D
     classDef hi fill:#E5EAF7,stroke:#1D3FA0,stroke-width:2px,color:#111A3D
@@ -338,7 +337,6 @@ flowchart TD
     class T,O hi
     class V warn
     class L dark
-    linkStyle 9 stroke:#9E2F41,stroke-width:2px,color:#9E2F41
 ```
 
 The dashed crossed edge is the most important rule in the diagram: **retrieval never supplies opening hours or prices.** Those are the facts a user checks, so they come from an API or not at all.

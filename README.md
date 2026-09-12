@@ -99,8 +99,12 @@ It accepts that group trips have one planner and several passengers, so it gives
 
 | Date | Mentor | Feedback Received | What Was Changed |
 | :---- | :---- | :---- | :---- |
-| [DD/MM] | [Name] | [What they actually said] | [What we changed, or why we chose not to] |
-| [DD/MM] | [Name] | [What they actually said] | [What we changed, or why we chose not to] |
+| 11/09 | [Mentor name] | The video should show the *flow* rather than describe features — and have you considered making this a Progressive Web App? | Acted on both. The video is now structured as one continuous walkthrough of the demo script rather than a feature tour. The PWA suggestion changed our thinking more than we expected: the moment a traveller most needs a re-plan — delayed at a foreign airport, no roaming — is the moment they have the worst connectivity. Offline capability is on-thesis for this product, not a nice-to-have. We shipped an installable manifest for the prototype and made offline-first the first priority of the build phase (see §5). |
+| 11/09 | [Mentor name] | Itinerary cards are too abstract — show a photo and an address like a real travel app. | Acted on. Blocks now carry an image and a street address: a thumbnail in the itinerary list, a full-width image and address in the block detail. It cost us very little and made the difference between a wireframe and something a user would trust. |
+| 11/09 | [Mentor name] | "Swap" needs more detail — what actually happens when I press it? | Acted on. Swap now opens a panel of alternative candidates for that slot, each with its cost difference, which member's interests it matches, and a cited reason. This also surfaced something already true in our architecture but invisible in the UI: the model never invents a place, it picks from a filtered candidate set. Swap is that set, shown to the user. |
+| 11/09 | [Mentor name] | When a re-plan adds a new place, explain what decided it. | Acted on. Every ADDED row in the diff now expands to show why that replacement was chosen: which constraint ruled out the original (closed, raining, over budget), the cost difference, whose interests it matches, and the source of the recommendation. Previously the reasoning existed in the engine but the user never saw it. |
+| 11/09 | [Mentor name] | What happens to a place most of the group has voted against? There should be a backup. | Acted on, and it closed a real gap — voting was decorative until now. A block with a majority thumbs-down is flagged in the itinerary and offers the Captain alternatives. We deliberately built this on the same candidate panel as Swap: the underlying question ("what else could go in this slot, and why") is identical, so one mechanism serves both. |
+| 11/09 | [Mentor name] | Let the user type what happened instead of only picking from preset cards. | Acted on for the prototype as a free-text field alongside the four preset triggers, with the typed text carried through to the diff. We were honest with the mentor that full natural-language parsing of an arbitrary disruption into a typed, constrained re-plan is a build-phase problem, not a two-day one — so the prototype shows the interaction and the build plan owns the parsing. |
 
 ---
 
@@ -132,6 +136,10 @@ Our prototype is a deployed web app rather than a static mockup, so the flow can
 
 *Consensus, and more usefully the conflicts, each with a suggested resolution. When a fifth member joins, a new conflict card appears here — the group layer is doing work, not decoration.*
 
+![Swap — alternative candidates](docs/images/screen-swap.png)
+
+*Swap opens the candidate set for that slot. Each alternative shows its cost difference, whose interests it matches and a cited reason. The same panel appears when most of the group votes a block down — "what else fits here, and why" is one question, so it is one mechanism.*
+
 ![Preference Intake — mobile](docs/images/screen-intake-mobile.png)
 
 *The member's entire involvement: one question per screen, no account, finished in under a minute. Every design decision here is about lowering participation cost.*
@@ -160,6 +168,9 @@ While planning, the AI drafts and the Captain commits. Once the trip starts, the
 **6. Screen size follows role.**
 Desktop is the Captain's cockpit. The phone is where members contribute and where re-planning happens. The form factor is part of the role design, not a responsive afterthought.
 
+**7. Built for the moment the network is worst.**
+The situation that most needs a re-plan — delayed at a foreign airport with no roaming — is also the situation with the least connectivity. So Detour is a Progressive Web App: installable to the home screen, with the itinerary, its fallbacks and the last computed plan available offline. A travel app that only works on good Wi-Fi has designed for the wrong moment.
+
 | | Wanderlog | TripIt | Google Travel | **Detour** |
 | :---- | :----: | :----: | :----: | :----: |
 | Build an itinerary | ✅ | ❌ | ✅ | ✅ |
@@ -181,6 +192,7 @@ Desktop is the Captain's cockpit. The phone is where members contribute and wher
 | **Database** | Supabase (Postgres) | Postgres, auth, realtime and pgvector in one free service instead of four. Realtime lets member preferences appear on the Captain's screen live. | Free projects pause after prolonged inactivity, so the project must be woken before any demo. Row-level security must be written by hand for link-based, account-less access. |
 | **Vector search** | pgvector, inside Supabase | Zero additional infrastructure. Similarity search is a few lines of SQL — a dedicated vector database would be a service to deploy, monitor and pay for, for no quality gain at our corpus size. | ivfflat index quality depends on corpus size; at a few hundred chunks we accept approximate recall. |
 | **LLM** | Gemini Flash, with structured output | A usable free tier and native `responseSchema` support, so the model's output shape is constrained rather than hoped for. We constrain candidate place IDs to an enum, so the model *structurally cannot* invent a location. | Free-tier rate limits are per-minute and per-day; we cache aggressively and ship a seed fallback so a rate-limit never breaks a demo. |
+| **Offline / install** | PWA — web app manifest, then a service worker with a cached app shell and itinerary | The re-plan use case happens where connectivity is worst. A PWA is installable from a link with no app store, and lets a cached plan stay readable on a plane or abroad. | Offline *writes* need conflict resolution against Supabase when the device reconnects; the prototype ships the manifest and an installable shell, and the build phase owns sync. iOS PWA support lags Android for background features. |
 | **Validation** | Zod | Model output is untrusted input. Zod validates it at runtime and gives us the TypeScript types for free via `z.infer`. | None material. |
 | **Place facts** | Google Places, **pre-fetched into our own table** | Hours, price and coordinates must be correct, so they come from an API and never from the model. We fetch Osaka's candidate set once into Postgres rather than calling live. | Requires a billing account and has quotas — which is exactly why we cache. Cached data goes stale and would need a refresh job in production. |
 | **Weather** | Open-Meteo | No API key and no billing account, which removes a whole class of demo-day failure. | Lower resolution than paid providers; adequate for an "is it raining in this window" trigger. |
@@ -229,7 +241,9 @@ The prototype's re-plan screen runs our real `applyDiff` and budget enforcement 
 
 **Week 2 — make it a group product.** Link-based joining with no account; preference intake writing to Postgres; Taste Profile computed from real submissions; realtime so member input appears on the Captain's screen; voting and locking; budget and settlement.
 
-**Week 3 — make it survive contact.** Live weather and flight-delay triggers; the full re-plan loop on real data; accessibility and responsive passes; error and empty states; performance; deploy, and rehearse a demo that also works offline from seeded data.
+**Week 3 — make it survive contact.** Live weather and flight-delay triggers; the full re-plan loop on real data; **the offline layer: service worker, cached itinerary and fallbacks, and read-only offline access to the current plan**; accessibility and responsive passes; error and empty states; deploy, and rehearse a demo that also works from seeded data with the network off.
+
+Offline is sequenced into Week 3 rather than bolted on at the end because it is the mentor feedback we found most convincing: the product's defining moment happens where connectivity fails. Natural-language parsing of a free-text disruption into a typed, constrained re-plan is also Week 3 work — the prototype demonstrates the interaction, the build phase makes it real.
 
 **Explicitly out of scope for the build phase**, so that what we do build is finished:
 

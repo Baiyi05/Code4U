@@ -1,0 +1,134 @@
+{
+  "abeno-harukas": {
+    "chunk": "Abeno Harukas (あべのハルカス) is a multi-purpose commercial facility in Abenosuji Itchome, Abeno-ku, Osaka, Japan. It consists of the New Annex, Eastern Annex and a supertall skyscraper, Abeno Harukas.",
+    "source": "Wikipedia / Abeno Harukas",
+    "url": "https://en.wikipedia.org/wiki/Abeno_Harukas",
+    "district": "tennoji"
+  },
+  "amerikamura": {
+    "chunk": "Amerikamura (also America mura; アメリカ村, American Village) is a sizable retail and entertainment area near Shinsaibashi in the Chūō-ku district of Osaka, Japan. It is usually referred to by locals as \"Ame-mura\".",
+    "source": "Wikipedia / Amerikamura",
+    "url": "https://en.wikipedia.org/wiki/Amerikamura",
+    "district": "chuo"
+  },
+  "den-den-town": {
+    "chunk": "Nipponbashi (日本橋; Japanese pronunciation: [ɲip.po(ꜜ)m.ba.ɕi],) is a shopping district of Naniwa Ward, Osaka, Japan. The area is centered along Sakaisuji Avenue, extending from the Ebisu-chō Interchange of the Hanshin Expressway in the south, to Nansan-dōri (just east of Nankai Namba Station) in the north.",
+    "source": "Wikipedia / Nipponbashi",
+    "url": "https://en.wikipedia.org/wiki/Nipponbashi",
+    "district": "naniwa"
+  },
+  "dotonbori": {
+    "chunk": "Dōtonbori or Dōtombori (道頓堀; pronounced [do̞ːtõ̞mbo̞ɾʲi]) is a district in Osaka, Japan. Known as one of Osaka's principal tourist and nightlife areas, the area runs along the Dōtonbori canal from Dōtonboribashi Bridge to Nipponbashi Bridge in the Namba district of the city's Chūō ward.",
+    "source": "Wikipedia / Dōtonbori",
+    "url": "https://en.wikipedia.org/wiki/D%C5%8Dtonbori",
+    "district": "namba"
+  },
+  "instant-ramen-museum": {
+    "chunk": "CupNoodles Museum may refer to one of two museums in Japan:",
+    "source": "Wikipedia / CupNoodles Museum",
+    "url": "https://en.wikipedia.org/wiki/CupNoodles_Museum",
+    "district": "ikeda"
+  },
+  "kaiyukan": {
+    "chunk": "The Osaka Aquarium Kaiyukan (海遊館, Kaiyūkan; known as the Kaiyukan) is an aquarium located in the ward of Minato in Osaka, Osaka Prefecture, Japan, near Osaka Bay. When it opened in 1990, it was the largest public aquarium in the world.",
+    "source": "Wikipedia / Osaka Aquarium Kaiyukan",
+    "url": "https://en.wikipedia.org/wiki/Osaka_Aquarium_Kaiyukan",
+    "district": "bay"
+  },
+  "katsuoji": {
+    "chunk": "Katsuō-ji (勝尾寺) is a Buddhist temple located in the Aomatani neighborhood of the city of Minoh, Osaka Prefecture, Japan. It belongs to the Kōyasan Shingon-shū sect of Japanese Buddhism and its honzon is a statue of Senjū Jūichimen Kannon Bosatsu.",
+    "source": "Wikipedia / Katsuō-ji",
+    "url": "https://en.wikipedia.org/wiki/Katsu%C5%8D-ji",
+    "district": "minoo"
+  },
+  "nakanoshima-park": {
+    "chunk": "The Nakanoshima Park (中之島公園, Nakanoshima kōen) is the first public park opened by Osaka in 1891, after its foundation as a city. It is located in Kita ward, on the Nakanoshima sandbank, lying between Dōjima and Tosabori Rivers.",
+    "source": "Wikipedia / Nakanoshima Park",
+    "url": "https://en.wikipedia.org/wiki/Nakanoshima_Park",
+    "district": "kita"
+  },
+  "nmao": {
+    "chunk": "The National Museum of Art, Osaka (国立国際美術館, Kokuritsu Kokusai Bijutsukan) is a subterranean Japanese art museum located on the island of Nakanoshima, located between the Dōjima River and the Tosabori River, about 10 minutes west of Higobashi Station in central Osaka. The official Japanese title of the museum…",
+    "source": "Wikipedia / National Museum of Art, Osaka",
+    "url": "https://en.wikipedia.org/wiki/National_Museum_of_Art%2C_Osaka",
+    "district": "kita"
+  },
+  "osaka-castle": {
+    "chunk": "Osaka Castle (大坂城 or 大阪城, Ōsaka-jō) is a Japanese castle in Chūō-ku, Osaka, Japan. The castle is one of Japan's most famous landmarks and played a major role in the unification of Japan during the sixteenth century of the Azuchi–Momoyama period.",
+    "source": "Wikipedia / Osaka Castle",
+    "url": "https://en.wikipedia.org/wiki/Osaka_Castle",
+    "district": "chuo"
+  },
+  "osaka-museum-history": {
+    "chunk": "Osaka Museum of History (大阪歴史博物館, Ōsaka Rekishi Hakubutsukan) opened in Chūō-ku, Ōsaka, Japan, in 2001. The project architects were César Pelli & Associates and Nihon Sekkei.",
+    "source": "Wikipedia / Osaka Museum of History",
+    "url": "https://en.wikipedia.org/wiki/Osaka_Museum_of_History",
+    "district": "chuo"
+  },
+  "osaka-science-museum": {
+    "chunk": "The Osaka Science Museum (大阪市立科学館, Ōsaka Shiritsu Kagakukan) is a science museum in Naka-no-shima, Kita-ku, Osaka, Japan. The museum is located between the Dōjima River and the Tosabori River, above Osaka's subterranean National Museum of Art.",
+    "source": "Wikipedia / Osaka Science Museum",
+    "url": "https://en.wikipedia.org/wiki/Osaka_Science_Museum",
+    "district": "kita"
+  },
+  "osaka-tenmangu": {
+    "chunk": "The Osaka Tenmangū Shrine (大阪天満宮, Ōsaka Tenmangū) is a Shinto shrine and one of Tenmangū founded in AD 949 in Osaka by Emperor Murakami. The Tenjin Festival is held here annually from 24 July to 25 July.",
+    "source": "Wikipedia / Osaka Tenmangū",
+    "url": "https://en.wikipedia.org/wiki/Osaka_Tenmang%C5%AB",
+    "district": "kita"
+  },
+  "shinsekai-tsutenkaku": {
+    "chunk": "Tsūtenkaku (通天閣; lit. \"Tower Reaching Heaven\") is a tower and landmark of Osaka, Japan, and advertises the Hitachi company.",
+    "source": "Wikipedia / Tsūtenkaku",
+    "url": "https://en.wikipedia.org/wiki/Ts%C5%ABtenkaku",
+    "district": "naniwa"
+  },
+  "shitennoji": {
+    "chunk": "Shitennō-ji (Japanese: 四天王寺, Temple of the Four Heavenly Kings) is a Buddhist temple in Ōsaka, Japan. It is also known as Arahaka-ji (荒陵寺), Nanba-ji/Naniwa-daiji (難波大寺), or Mitsu-ji 御津寺.",
+    "source": "Wikipedia / Shitennō-ji",
+    "url": "https://en.wikipedia.org/wiki/Shitenn%C5%8D-ji",
+    "district": "tennoji"
+  },
+  "sumiyoshi-taisha": {
+    "chunk": "Sumiyoshi-taisha (住吉大社), also known as Sumiyoshi Grand Shrine, is a Shinto shrine in Sumiyoshi-ku, Osaka, Osaka Prefecture, Japan. It is the main shrine of all the Sumiyoshi shrines.",
+    "source": "Wikipedia / Sumiyoshi-taisha",
+    "url": "https://en.wikipedia.org/wiki/Sumiyoshi-taisha",
+    "district": "sumiyoshi"
+  },
+  "tempozan-ferris-wheel": {
+    "chunk": "Tempozan Ferris Wheel (Japanese: 天保山大観覧車, Hepburn: Tenpōzan Daikanransha) is a 112-meter-tall (367 ft) Ferris wheel located in Osaka, Japan, at Tempozan Harbor Village, next to Osaka Aquarium Kaiyukan, one of the largest aquariums in the world. The wheel has a height of 112.5 metres (369 ft) and diameter of 100…",
+    "source": "Wikipedia / Tempozan Ferris Wheel",
+    "url": "https://en.wikipedia.org/wiki/Tempozan_Ferris_Wheel",
+    "district": "bay"
+  },
+  "tennoji-park": {
+    "chunk": "The Tennōji Park (天王寺公園, Tennōji Kōen) is a park with botanical garden at 1–108, Chausuyama-cho, Tennōji-ku, Osaka, Japan.",
+    "source": "Wikipedia / Tennōji Park",
+    "url": "https://en.wikipedia.org/wiki/Tenn%C5%8Dji_Park",
+    "district": "tennoji"
+  },
+  "umeda-food-hall": {
+    "chunk": "Umeda (Japanese: 梅田) is a major commercial, business, shopping and entertainment district in Kita-ku, Osaka, Japan, where the city's main northern railway termini (Ōsaka Station, Umeda Station) are located. The district's name means \"plum field\".",
+    "source": "Wikipedia / Umeda",
+    "url": "https://en.wikipedia.org/wiki/Umeda",
+    "district": "kita"
+  },
+  "umeda-sky-building": {
+    "chunk": "The Umeda Sky Building (梅田スカイビル, Umeda Sukai Biru) is a two-tower mixed-use skyscraper in Osaka, Japan. Located on the outskirts of the Umeda business district in Kita-ku, Osaka, the Umeda Sky Building consists of two 40-story towers interconnected at their two uppermost stories via glass bridges with escalators…",
+    "source": "Wikipedia / Umeda Sky Building",
+    "url": "https://en.wikipedia.org/wiki/Umeda_Sky_Building",
+    "district": "kita"
+  },
+  "universal-citywalk": {
+    "chunk": "Universal Studios Japan (ユニバーサル・スタジオ・ジャパン) is a theme park located in Osaka, Japan. Opened on March 31, 2001, it is one of six Universal Studios theme parks worldwide and was the first to open outside the United States.",
+    "source": "Wikipedia / Universal Studios Japan",
+    "url": "https://en.wikipedia.org/wiki/Universal_Studios_Japan",
+    "district": "konohana"
+  },
+  "usj": {
+    "chunk": "Universal Studios Japan (ユニバーサル・スタジオ・ジャパン) is a theme park located in Osaka, Japan. Opened on March 31, 2001, it is one of six Universal Studios theme parks worldwide and was the first to open outside the United States.",
+    "source": "Wikipedia / Universal Studios Japan",
+    "url": "https://en.wikipedia.org/wiki/Universal_Studios_Japan",
+    "district": "konohana"
+  }
+}

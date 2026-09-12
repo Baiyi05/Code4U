@@ -1,0 +1,43 @@
+{
+  "name": "Detour4U — self-healing group itineraries",
+  "short_name": "Detour4U",
+  "description": "A group trip planner that re-plans itself when the day falls apart, without touching what you locked.",
+  "id": "/",
+  "start_url": "/setup",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf9f7",
+  "theme_color": "#faf9f7",
+  "categories": ["travel", "productivity"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Itinerary",
+      "short_name": "Itinerary",
+      "url": "/t/OSK-4K2",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Re-plan",
+      "short_name": "Re-plan",
+      "url": "/t/OSK-4K2/replan",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

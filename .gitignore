@@ -1,0 +1,11 @@
+node_modules/
+.next/
+.env.local
+.DS_Store
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+e2e/shots/
+e2e/.results/
+playwright-report/
+test-results/

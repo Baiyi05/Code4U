@@ -24,6 +24,9 @@ test.describe('the demo path', () => {
     await journey.go('/setup');
     await journey.check('setup', 'A trip that re-plans itself');
 
+    // the wordmark, so a half-finished rename fails here rather than on stage
+    await expect(page.getByText('Detour4U').first()).toBeVisible();
+
     await page.getByLabel('Where').fill('Osaka, Japan');
     await page.getByLabel('Budget per person').fill('3000');
     await page.getByRole('button', { name: 'Create trip' }).click();
@@ -78,6 +81,9 @@ test.describe('the demo path', () => {
     await page.getByRole('link', { name: 'Itinerary', exact: true }).click();
     await page.waitForURL(/\/t\/[^/?]+(\?.*)?$/);
     await journey.check('itinerary', 'Budget · per person');
+
+    // the app shell header carries the brand on every trip screen
+    await expect(page.getByText(/^Detour4U · /)).toBeVisible();
 
     const budgetBefore = await page.getByTestId('budget-spent').innerText();
     const blocksBefore = await page.getByTestId('block-card').count();

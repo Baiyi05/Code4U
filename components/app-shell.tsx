@@ -36,7 +36,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-30 border-b border-line bg-paper/85 backdrop-blur-md">
         <div className="flex items-center justify-between gap-3 px-4 py-3">
           <Link href={base} className="min-w-0">
-            <p className="label-caps text-ink-faint">Detour · {DEMO_TRIP.slug}</p>
+            <p className="label-caps text-ink-faint">Detour4U · {DEMO_TRIP.slug}</p>
             <p className="truncate text-[0.9375rem] leading-tight font-semibold">
               {DEMO_TRIP.destination}
             </p>

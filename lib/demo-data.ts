@@ -66,7 +66,7 @@ export const PLACES_BY_ID: ReadonlyMap<string, Place> = new Map(
 );
 
 /** Where the invite link points. There is no server, so the slug is the whole trip. */
-export const INVITE_URL = `https://detour.trip/j/${DEMO_TRIP.slug}`;
+export const INVITE_URL = `https://detour4u.trip/j/${DEMO_TRIP.slug}`;
 
 // ---------------------------------------------------------------------------
 // Members

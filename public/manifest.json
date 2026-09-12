@@ -1,6 +1,6 @@
 {
-  "name": "Detour — self-healing group itineraries",
-  "short_name": "Detour",
+  "name": "Detour4U — self-healing group itineraries",
+  "short_name": "Detour4U",
   "description": "A group trip planner that re-plans itself when the day falls apart, without touching what you locked.",
   "id": "/",
   "start_url": "/setup",

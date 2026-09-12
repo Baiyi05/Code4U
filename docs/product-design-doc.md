@@ -1,4 +1,4 @@
-# Detour — Product Design Doc
+# Detour4U — Product Design Doc
 
 **Version** v1 · Sep 3, 2026
 **Hackathon** Aug 31 – Sep 13 · Lifestyle Track — "Planning an Escape"
@@ -6,7 +6,7 @@
 **App language** English (界面文案全英文)
 **Demo city** Osaka · 4 人 5 天 · RM3000 / 人
 
-> Detour 是一个**会自己修复的行程规划工具**。它承认团体旅行只有一个真正的策划人,把群体偏好变成他手上的弹药;并且在计划被现实打乱时,三秒内重排当天剩余行程,还告诉你改了什么、为什么。
+> Detour4U 是一个**会自己修复的行程规划工具**。它承认团体旅行只有一个真正的策划人,把群体偏好变成他手上的弹药;并且在计划被现实打乱时,三秒内重排当天剩余行程,还告诉你改了什么、为什么。
 
 ---
 
@@ -47,7 +47,7 @@
 ## 3. 产品生命周期:一个循环,不是一条直线
 
 市面上所有旅行 app 都在 `COMMIT` 那里结束——你拿到一张行程表,然后就没有然后了。
-**Detour 的价值全部在那条回头的箭头上。**
+**Detour4U 的价值全部在那条回头的箭头上。**
 
 ```mermaid
 flowchart LR
@@ -248,4 +248,4 @@ A — 我们的立场是:**群体输入是必需的,群体决策不是。** 真�
 
 ---
 
-*配套文件:Detour Prototype Plan(评分策略 · 角色分工 · 四层架构图 · Aug 31 – Sep 13 时间线)*
+*配套文件:Detour4U Prototype Plan(评分策略 · 角色分工 · 四层架构图 · Aug 31 – Sep 13 时间线)*

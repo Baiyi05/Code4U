@@ -1,4 +1,4 @@
-# Detour — 技术方案
+# Detour4U — 技术方案
 
 **Version** v1 · Sep 3, 2026
 **配套文件** `docs/product-design-doc.md`(产品方向与功能)

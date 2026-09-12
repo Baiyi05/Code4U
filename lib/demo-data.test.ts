@@ -786,7 +786,7 @@ describe('the web app manifest', () => {
   );
 
   it('points at icons that are really there', () => {
-    expect(manifest.name).toContain('Detour');
+    expect(manifest.name).toContain('Detour4U');
     expect(manifest.display).toBe('standalone');
     expect(manifest.start_url).toBe('/setup');
 

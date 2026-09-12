@@ -8,14 +8,14 @@ import './globals.css';
  * caching strategy is a decision for when there is a real backend to cache.
  */
 export const metadata: Metadata = {
-  title: 'Detour — self-healing group itineraries',
+  title: 'Detour4U — self-healing group itineraries',
   description:
     'A group trip planner that re-plans itself when the day falls apart, without touching what you locked.',
-  applicationName: 'Detour',
+  applicationName: 'Detour4U',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
-    title: 'Detour',
+    title: 'Detour4U',
     statusBarStyle: 'default',
   },
   icons: {

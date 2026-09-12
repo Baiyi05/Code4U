@@ -64,7 +64,7 @@ export function SetupScreen() {
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col px-5 py-8">
-      <p className="label-caps text-accent-ink">Detour</p>
+      <p className="label-caps text-accent-ink">Detour4U</p>
       <h1 className="mt-1.5 text-2xl leading-tight font-semibold text-balance">
         A trip that re-plans itself when the day falls apart.
       </h1>

@@ -1,4 +1,4 @@
-# **Detour by [Team Name]**
+# **Detour4U by [Team Name]**
 
 **Team:** [Member 1], [Member 2], [Member 3], [Member 4]
 
@@ -40,7 +40,7 @@ All three stop at the moment the plan is agreed. **None of them help after that 
 
 ### Our Solution
 
-**Detour is a group travel planner built around a self-repairing itinerary.**
+**Detour4U is a group travel planner built around a self-repairing itinerary.**
 
 It accepts that group trips have one planner and several passengers, so it gives the Captain a cockpit and gives everyone else a 60-second, no-signup way to be heard. It turns budget, pace, dietary needs and must-dos into hard constraints that shape the plan rather than notes checked afterwards. And when the trip breaks — flight delayed, heavy rain, a venue closed, the budget trending over — it rebuilds the remaining plan in seconds and shows exactly what changed, what stayed, and why.
 
@@ -149,7 +149,7 @@ Our prototype is a deployed web app rather than a static mockup, so the flow can
 ## **4. What Makes It Different**
 
 **1. The itinerary is a loop, not a line.**
-Every comparable product ends at the moment the plan is agreed. Detour's re-plan takes a disruption, rebuilds only what is still ahead, and returns it as a diff you can partially accept. The original twist is treating an itinerary as a constrained, mutable object with fallbacks — not a document.
+Every comparable product ends at the moment the plan is agreed. Detour4U's re-plan takes a disruption, rebuilds only what is still ahead, and returns it as a diff you can partially accept. The original twist is treating an itinerary as a constrained, mutable object with fallbacks — not a document.
 
 **2. It designs for the asymmetry instead of pretending it isn't there.**
 > *Group trips don't have group planners. They have one planner and five passengers.*
@@ -169,9 +169,9 @@ While planning, the AI drafts and the Captain commits. Once the trip starts, the
 Desktop is the Captain's cockpit. The phone is where members contribute and where re-planning happens. The form factor is part of the role design, not a responsive afterthought.
 
 **7. Built for the moment the network is worst.**
-The situation that most needs a re-plan — delayed at a foreign airport with no roaming — is also the situation with the least connectivity. So Detour is a Progressive Web App: installable to the home screen, with the itinerary, its fallbacks and the last computed plan available offline. A travel app that only works on good Wi-Fi has designed for the wrong moment.
+The situation that most needs a re-plan — delayed at a foreign airport with no roaming — is also the situation with the least connectivity. So Detour4U is a Progressive Web App: installable to the home screen, with the itinerary, its fallbacks and the last computed plan available offline. A travel app that only works on good Wi-Fi has designed for the wrong moment.
 
-| | Wanderlog | TripIt | Google Travel | **Detour** |
+| | Wanderlog | TripIt | Google Travel | **Detour4U** |
 | :---- | :----: | :----: | :----: | :----: |
 | Build an itinerary | ✅ | ❌ | ✅ | ✅ |
 | Budget as a live constraint | ❌ | ❌ | ❌ | ✅ |

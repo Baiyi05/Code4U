@@ -1,4 +1,4 @@
-# Detour — Video Script (4:30)
+# Detour4U — Video Script (4:30)
 
 **Hard limit 5:00 — marks lost above it. Target 4:30.**
 Narration ≈ 640 words at a comfortable 145 wpm. Read it out loud once with a timer before recording.
@@ -33,7 +33,7 @@ Narration ≈ 640 words at a comfortable 145 wpm. Read it out loud once with a t
 
 ### 0:20 — Slide 2: the thesis
 
-> We built Detour. Other apps give you an itinerary. **We give you an itinerary that repairs itself.**
+> We built Detour4U. Other apps give you an itinerary. **We give you an itinerary that repairs itself.**
 >
 > Let me show you the whole flow.
 
@@ -97,11 +97,11 @@ Narration ≈ 640 words at a comfortable 145 wpm. Read it out loud once with a t
 
 *Slide: build plan + one line of impact.*
 
-> In the build phase: live data, the group layer, then offline. Because the moment you most need a re-plan — delayed at a foreign airport with no roaming — is the moment you have the worst connection. Detour installs to your home screen and keeps working.
+> In the build phase: live data, the group layer, then offline. Because the moment you most need a re-plan — delayed at a foreign airport with no roaming — is the moment you have the worst connection. Detour4U installs to your home screen and keeps working.
 >
 > One person spends fifteen hours planning a trip. Everyone else spends zero. We make that ninety minutes and sixty seconds — and when it all goes wrong, nobody has to start over.
 >
-> That's Detour. Thank you.
+> That's Detour4U. Thank you.
 
 ---
 

@@ -33,6 +33,7 @@ export function BlockCard({
 
       <button
         type="button"
+        data-testid="block-card"
         onClick={onOpen}
         aria-current={selected}
         className={cn(

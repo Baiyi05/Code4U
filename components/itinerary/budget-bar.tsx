@@ -30,7 +30,7 @@ export function BudgetBar() {
       <div className="flex items-end justify-between gap-3">
         <div>
           <p className="label-caps text-ink-faint">Budget · per person</p>
-          <p className="tabular text-xl leading-tight font-semibold">
+          <p data-testid="budget-spent" className="tabular text-xl leading-tight font-semibold">
             {formatRM(spent)}
             <span className="ml-1.5 text-sm font-normal text-ink-faint">of {formatRM(ceiling)}</span>
           </p>

@@ -5,3 +5,7 @@ node_modules/
 
 # TypeScript incremental build cache
 *.tsbuildinfo
+e2e/shots/
+e2e/.results/
+playwright-report/
+test-results/

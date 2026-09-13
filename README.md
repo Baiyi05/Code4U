@@ -2,11 +2,13 @@
 
 **Team:** Koo Ming Sheng, Lee Jia Quan, Au Yu Xuan, Siti Sarah Liyana binti Zaini
 
-**Problem Statement:** Planning an Escape
+**Problem Statement:** Travel Planner (Lifestyle Track — Planning an Escape)
 
-**Video Presentation:** [Unlisted YouTube Link]
+**Video Presentation:** https://youtu.be/yH2LVqF6ptE
 
-**Presentation Slides:** [Public Link]
+**Presentation Slides:** https://drive.google.com/file/d/1jCpa28RILlOJcPSWnKOWNLEV4tsj3G-a/view?usp=sharing
+
+**Prototype Link:** [Detour4U](https://code4-u.vercel.app/setup)
 
 ---
 
@@ -216,11 +218,11 @@ flowchart TD
 
 ## **3. Design & Prototype**
 
-**UI Prototype:** [Public Link — verify it opens in an incognito window]
+**UI Prototype:** [Detour4U](https://code4-u.vercel.app/setup) : [https://code4-u.vercel.app](https://code4-u.vercel.app/setup)
 
 Our prototype is a deployed web app rather than a static mockup, so the flow can be clicked through end to end on both desktop and mobile. Screen sizes map to roles: **the Captain plans on a desktop cockpit; members and mid-trip re-planning happen on a phone.**
 
-<!-- Replace with your own screenshots. 4-8 screens. Keep the captions. -->
+
 
 ![Itinerary — desktop](docs/images/screen-itinerary-desktop.png)
 
@@ -241,10 +243,6 @@ Our prototype is a deployed web app rather than a static mockup, so the flow can
 ![Taste Profile](docs/images/screen-taste-profile.png)
 
 *Consensus, and more usefully the conflicts, each with a suggested resolution. When a fifth member joins, a new conflict card appears here — the group layer is doing work, not decoration.*
-
-![Swap — alternative candidates](docs/images/screen-swap.png)
-
-*Swap opens the candidate set for that slot. Each alternative shows its cost difference, whose interests it matches and a cited reason. The same panel appears when most of the group votes a block down — "what else fits here, and why" is one question, so it is one mechanism.*
 
 ![Preference Intake — mobile](docs/images/screen-intake-mobile.png)
 
